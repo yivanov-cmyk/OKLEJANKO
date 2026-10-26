@@ -1,576 +1,1005 @@
+
+
 <!DOCTYPE html>
 <html>
 <head>
   <base target="_top">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.11.0/sweetalert2.all.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
   <style>
-    :root {
-      --primary: #0033A0; 
-      --primary-light: #e6ebf5;
-      --success: #10b981;
-      --danger: #ef4444;
-      --slate-50: #f8fafc;
-      --slate-100: #f1f5f9;
-      --slate-200: #e2e8f0;
-      --slate-500: #64748b;
-      --slate-800: #1e293b;
-    }
-
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
-      margin: 0; padding: 10px; min-height: 100vh;
-      display: flex; flex-direction: column; align-items: center;
+      font-family: 'Inter', sans-serif;
+      background-color: #f3f4f6; /* gray-100 */
+      color: #1f2937; /* gray-800 */
+      margin: 0;
+      padding: 1rem;
     }
-
-    .app-container {
-      width: 100%; max-width: 600px;
-      box-sizing: border-box;
+    .section {
+      display: none; 
     }
+    .min-h-screen { min-height: 100vh; }
+    .p-4 { padding: 1rem; }
+    .p-6 { padding: 1.5rem; }
+    .p-10 { padding: 2.5rem; }
+    
+    .text-center { text-align: center; }
+    .text-white { color: white; }
+    .text-blue-700 { color: #1d4ed8; }
+    .text-sky-700 { color: #0369a1; } /* Added for topOklejanie title */
+    .text-slate-700 { color: #374151; }
+    .text-slate-600 { color: #4b5563; } /* Added for instruction slide text */
+    .text-slate-500 { color: #6b7280; }
+    .text-slate-800 { color: #1e293b; } /* Added for active user name */
+    .text-sm { font-size: 0.875rem; }
+    .text-lg { font-size: 1.125rem; }
+    .text-xl { font-size: 1.25rem; }
+    .text-2xl { font-size: 1.5rem; }
+    .text-3xl { font-size: 1.875rem; }
 
-    /* Karta główna i sekcje */
-    .glass-card {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px); border-radius: 28px;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-      padding: 24px; margin-bottom: 20px; border: 1px solid white;
+    .font-bold { font-weight: 700; }
+    .font-semibold { font-weight: 600; }
+    .font-medium { font-weight: 500; } /* Added for medal styling */
+    .font-mono { font-family: monospace; } /* Added for timer */
+
+    .bg-white { background-color: white; }
+    .bg-slate-50 { background-color: #f8fafc; }
+    .bg-sky-50 { background-color: #f0f9ff; }
+    .bg-green-500 { background-color: #22c55e; }
+    .bg-green-600 { background-color: #16a34a; } /* For hover and active status */
+    .bg-red-500 { background-color: #ef4444; }
+    .bg-red-600 { background-color: #dc2626; } /* For hover and anomalia status */
+    .bg-blue-500 { background-color: #3b82f6; } /* Added for instruction nav buttons */
+    .bg-blue-600 { background-color: #2563eb; }
+    .bg-blue-700 { background-color: #1d4ed8; }
+    .bg-orange-500 { background-color: #f97316; }
+    .bg-orange-600 { background-color: #ea580c; }
+    .bg-slate-500 { background-color: #64748b; }
+    .bg-slate-600 { background-color: #475569; }
+    .bg-slate-100 { background-color: #f1f5f9; } /* For medal styling & timer background */
+
+    /* Styles for medal rendering */
+    .bg-yellow-50 { background-color: #fffbeb; } 
+    .border-yellow-400 { border-color: #facc15; } 
+    .text-yellow-800 { color: #854d0e; } 
+    .border-slate-400 { border-color: #94a3b8; } 
+    .bg-orange-50 { background-color: #fff7ed; } 
+    .border-orange-400 { border-color: #fb923c; } 
+    .text-orange-700 { color: #c2410c; }
+
+    /* Styles for active user status */
+    .status-anomalia { color: #dc2626; font-weight: 600; } /* red-600 */
+    .status-aktywny { color: #16a34a; font-weight: 600; } /* green-600 */
+
+
+    .hover\\:bg-green-600:hover { background-color: #16a34a; }
+    .hover\\:bg-red-600:hover { background-color: #dc2626; }
+    .hover\\:bg-blue-600:hover { background-color: #1b60d1; } /* Darker blue for instruction nav */
+    .hover\\:bg-blue-700:hover { background-color: #1e40af; } /* Darker blue for main buttons */
+    .hover\\:bg-orange-600:hover { background-color: #ea580c; }
+    .hover\\:bg-slate-600:hover { background-color: #475569; }
+
+    .rounded-lg { border-radius: 0.5rem; }
+    .rounded-xl { border-radius: 0.75rem; }
+    .rounded-full { border-radius: 9999px; } /* For instruction nav buttons */
+
+    .shadow { box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1); } /* Tailwind 'shadow' */
+    .shadow-sm { box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); } /* Tailwind 'shadow-sm' */
+    .shadow-md { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1); } /* Tailwind 'shadow-md' */
+    .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1); }
+    .shadow-xl { box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1); }
+    .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
+
+    .border { border-width: 1px; border-style: solid; } /* Base border class */
+    .border-slate-200 { border-color: #e2e8f0; } /* gray-200 */
+    .border-sky-200 { border-color: #bae6fd; }   /* Added for topOklejanie-box */
+    .border-gray-300 { border-color: #d1d5db; } /* For inputs */
+
+    .w-full { width: 100%; }
+    .max-w-3xl { max-width: 48rem; /* 768px */ margin-left: auto; margin-right: auto; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+    .h-10 { height: 2.5rem; }
+    .h-12 { height: 3rem; }
+    .object-contain { object-fit: contain; }
+
+    .flex { display: flex; }
+    .flex-1 { flex: 1 1 0%; }
+    .flex-col { flex-direction: column; }
+    /* sm:flex-row will be handled by media query below */
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    
+    /* Basic gap simulation (margin-based) for row direction */
+    .gap-2 > *:not(:first-child) { margin-left: 0.5rem; }
+    .gap-3 > *:not(:first-child) { margin-left: 0.75rem; }
+    .gap-4 > *:not(:first-child) { margin-left: 1rem; }
+    .gap-6 > *:not(:first-child) { margin-left: 1.5rem; }
+    /* If gap is used with flex-col, these won't work. Use "space-y-*" or proper flex "gap" property */
+
+    .space-y-1 > *:not(:first-child) { margin-top: 0.25rem; }
+    .space-y-2 > *:not(:first-child) { margin-top: 0.5rem; }
+    .space-y-3 > *:not(:first-child) { margin-top: 0.75rem; }
+    .space-y-4 > *:not(:first-child) { margin-top: 1rem; }
+    .space-y-6 > *:not(:first-child) { margin-top: 1.5rem; }
+    .space-y-8 > *:not(:first-child) { margin-top: 2rem; }
+
+    .block { display: block; }
+
+    .text-2xl, .text-lg, .text-xl, .text-3xl, .text-sm {
+      line-height: 1.5; /* Adjusted for better readability */
     }
+    .text-xs { font-size: 0.75rem; line-height: 1rem; } /* Added for footer and status */
 
-    header {
-      display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--slate-100);
-    }
+    .mt-1 { margin-top: 0.25rem; }
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-2 { margin-bottom: 0.5rem; } /* Added for topOklejanie items */
+    .mb-3 { margin-bottom: 0.75rem; }
+    .mb-4 { margin-bottom: 1rem; }
+    .mt-3 { margin-top: 0.75rem; } /* Added for instruction-nav */
+    .mt-4 { margin-top: 1rem; } /* Added for status */
+    .mt-6 { margin-top: 1.5rem; }
+    .pb-4 { padding-bottom: 1rem; } /* Added for header */
+    .pb-6 { padding-bottom: 1.5rem; } /* Added for footer */
+    .pt-3 { padding-top: 0.75rem; }
+    .pt-4 { padding-top: 1rem; }
+    .px-2 { padding-left: 0.5rem; padding-right: 0.5rem; } /* Added for timer */
+    .py-1 { padding-top: 0.25rem; padding-bottom: 0.25rem; } /* Added for timer */
+    .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; } /* For instruction nav buttons */
+    .py-2\\.5 { padding-top: 0.625rem; padding-bottom: 0.625rem; } /* For admin and section buttons */
+    .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; } /* For inputs */
+    .px-4 { padding-left: 1rem; padding-right: 1rem; } /* For buttons */
+    .px-5 { padding-left: 1.25rem; padding-right: 1.25rem; } /* For admin button */
+    .px-6 { padding-left: 1.5rem; padding-right: 1.5rem; } /* For START/STOP buttons */
+    .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; } /* For START/STOP buttons */
+    .pr-2 { padding-right: 0.5rem; } /* For activeUsers scrollbar */
+    .mx-1 { margin-left: 0.25rem; margin-right: 0.25rem; } /* For instruction nav buttons */
 
-    .brand-title h1 { font-size: 1.4rem; margin: 0; color: var(--primary); font-weight: 800; }
 
-    /* Menu Główne - Kafelki */
-    .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
-    .btn-main {
-      height: 140px; border-radius: 22px; border: none;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 12px; color: white; font-weight: 700; font-size: 1.2rem; cursor: pointer;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transition: 0.2s;
-    }
-    .btn-main:active { transform: scale(0.96); }
-    .btn-start { background: linear-gradient(145deg, #10b981, #059669); }
-    .btn-stop { background: linear-gradient(145deg, #ef4444, #dc2626); }
-
-    /* Formularze */
-    .input-group { margin-bottom: 18px; }
-    label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.85rem; color: var(--slate-500); text-transform: uppercase; }
     input, select {
-      width: 100%; height: 58px; background: var(--slate-50);
-      border: 2px solid var(--slate-200); border-radius: 16px; padding: 0 18px; font-size: 1.1rem; box-sizing: border-box;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d1d5db; /* gray-300 */
+      border-radius: 0.375rem; /* rounded-md */
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05); /* shadow-sm */
+      width: 100%;
+      box-sizing: border-box;
+      font-family: inherit;
+      font-size: inherit;
+      line-height: inherit;
     }
-    input:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 4px var(--primary-light); }
+    input:focus, select:focus {
+        outline: 2px solid transparent;
+        outline-offset: 2px;
+        border-color: #3b82f6; /* blue-500 */
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5); /* ring-blue-500-like */
+    }
 
-    /* Sekcje START/STOP jako karty */
-    .section { display: none; animation: slideUp 0.3s ease-out; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    button {
+      cursor: pointer;
+      font-weight: 600; /* semibold by default for buttons */
+    }
+    .inline-flex { display: inline-flex; }
 
-    /* Boxy na dole */
-    .bottom-cards { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 20px; }
-    @media (min-width: 500px) { .bottom-cards { grid-template-columns: 1fr 1fr; } }
-    
-    .card-info { background: white; padding: 16px; border-radius: 20px; border: 1px solid var(--slate-200); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .card-title { font-size: 0.8rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; }
+    /* Specific component styles */
+    #bottom-container {
+      display: flex;
+      flex-direction: column; 
+      gap: 24px; 
+      margin-top: 24px; 
+    }
 
-    /* TOP 3 Styles */
-    .top-item { padding: 8px; border-radius: 10px; margin-bottom: 6px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; border: 1px solid transparent; }
-    .gold { background: #fffbeb; color: #854d0e; border-color: #facc15; }
-    .silver { background: #f8fafc; color: #475569; border-color: #cbd5e1; }
-    .bronze { background: #fff7ed; color: #c2410c; border-color: #fdba74; }
+    #instruction-box,
+    #topOklejanie-box {
+      flex-grow: 1; 
+      flex-basis: 0; 
+      /* Add other common styles like padding, bg, border, shadow here if they are always the same */
+      /* Example, if these were common:
+         padding: 1.5rem;
+         border-radius: 0.5rem;
+         box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1); 
+         border-width: 1px; 
+         border-style: solid; 
+      */
+    }
+    /* Specific background/border for instruction-box */
+    #instruction-box {
+        background-color: #f8fafc; /* bg-slate-50 */
+        border: 1px solid #e2e8f0; /* border-slate-200 */
+    }
+    /* Specific background/border for topOklejanie-box */
+    #topOklejanie-box {
+        background-color: #f0f9ff; /* bg-sky-50 */
+        border: 1px solid #bae6fd; /* border-sky-200 */
+    }
 
-    /* Aktywni Użytkownicy */
-    .active-users-card { background: var(--slate-100); border-radius: 22px; padding: 20px; }
-    .user-item { background: white; margin-bottom: 8px; padding: 12px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--slate-200); }
-    .timer-badge { font-family: monospace; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; }
-    .timer-normal { background: var(--slate-100); color: var(--slate-800); }
-    .timer-warning { background: #fef3c7; color: #92400e; }
-    .timer-danger { background: #fee2e2; color: #b91c1c; }
-    
-    /* Instrukcja */
-    .instruction-slide { display: none; font-size: 0.8rem; min-height: 60px; color: var(--slate-800); }
+
+    .relative { position: relative; }
+    .min-h-\\[120px\\] { min-height: 120px; } /* For instruction slides area */
+    .instruction-slide { display: none; }
     .instruction-slide.active { display: block; }
-    .btn-nav { background: var(--primary); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; }
 
-    .status-msg { font-size: 0.9rem; font-weight: 700; margin: 10px 0; text-align: center; color: var(--primary); }
+    .max-h-80 { max-height: 20rem; } /* 320px */
+    .overflow-y-auto { overflow-y: auto; }
+    
+    /* Responsive Styles */
+    @media (min-width: 640px) { /* sm breakpoint */
+      .sm\\:p-6 { padding: 1.5rem; }
+      .sm\\:p-10 { padding: 2.5rem; }
+      .sm\\:flex-row { flex-direction: row; } /* Used in header, button groups */
+      .sm\\:text-right { text-align: right; }
+      .sm\\:text-left { text-align: left; }
+      .sm\\:text-3xl { font-size: 1.875rem; }
+      .sm\\:hidden { display: none; } /* For line break in h2 */
+      .sm\\:w-auto { width: auto; } /* For START/STOP buttons */
+    }
+
+    @media (min-width: 1024px) { /* lg breakpoint */
+      #bottom-container {
+        flex-direction: row; 
+      }
+      /* Any other lg: prefixed classes used in HTML should be defined here if needed */
+    }
+    #passwordVerificationSection {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.95); /* Ciemne tło */
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .password-box {
+      background: white;
+      padding: 40px;
+      border-radius: 30px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Stan przycisków w menu głównym */
+    .btn-main:disabled {
+      filter: grayscale(1);
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   </style>
 </head>
-<body>
-
-  <div class="app-container">
-    <div class="glass-card">
-      <header>
-        <div class="brand-title">
-          <h1>FM LOGISTIC</h1>
-          <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">● SYSTEM ONLINE</span>
-        </div>
-        <button onclick="confirmClearSessions()" style="background:none; border:none; cursor:pointer; font-size: 1.2rem;">⚙️</button>
-      </header>
-
-      <div id="status" class="status-msg"></div>
-
-      <div id="mainMenu" class="menu-grid">
-        <button class="btn-main btn-start" onclick="showSection('start')">
-          <span style="font-size: 2.5rem;">📥</span> START
-        </button>
-        <button class="btn-main btn-stop" onclick="showSection('stop')">
-          <span style="font-size: 2.5rem;">📤</span> STOP
-        </button>
-      </div>
-
-      <div id="startSection" class="section">
-        <h2 style="color:var(--success); font-size: 1.2rem; margin-bottom: 20px;">▶ ROZPOCZNIJ PRACĘ</h2>
-        <div class="input-group">
-          <label>Zeskanuj Identyfikator</label>
-          <input type="text" id="login" placeholder="..." onfocus="loadActiveUsers()">
-        </div>
-        <div class="input-group">
-          <label>Wybierz Procedurę</label>
-          <select id="procedure" onchange="updateFields('start')">
-            <option value="">-- wybierz --</option>
-            <option value="Oklejanie">Oklejanie</option>
-            <option value="Foliowanie">Foliowanie</option>
-            <option value="Kontener/Bulkzal">Kontener/Bulkzal</option>
-            <option value="Instrukcje">Instrukcje</option>
-            <option value="Przerwa">Przerwa</option>
-            <option value="Anomalia">Anomalia</option>
-            <option value="Copacking">Copacking</option>
-            <option value="Delegacja">Delegacja</option>
-          </select>
-        </div>
-        <div id="sscc-block" style="display:none;" class="input-group">
-          <label>Numer SSCC / Palety</label>
-          <input type="text" id="sscc" placeholder="Skanuj kod...">
-        </div>
-        <div class="menu-grid" style="grid-template-columns: 2fr 1fr;">
-          <button onclick="startProcess()" class="btn-main btn-start" style="height: 60px;">POTWIERDŹ</button>
-          <button onclick="backToMenu()" class="btn-main" style="height: 60px; background: var(--slate-800);">WRÓĆ</button>
-        </div>
-      </div>
-
-      <div id="stopSection" class="section">
-        <h2 style="color:var(--danger); font-size: 1.2rem; margin-bottom: 20px;">■ ZAKOŃCZ PRACĘ</h2>
-        <div class="input-group">
-          <label>Zeskanuj Identyfikator</label>
-          <input type="text" id="stop_login" placeholder="..." onfocus="loadActiveUsers()">
-        </div>
-        <div class="input-group">
-          <label>Wybierz Procedurę</label>
-          <select id="stop_procedure" onchange="updateFields('stop')">
-            <option value="">-- wybierz --</option>
-            <option value="Oklejanie">Oklejanie</option>
-            <option value="Foliowanie">Foliowanie</option>
-            <option value="Kontener/Bulkzal">Kontener/Bulkzal</option>
-            <option value="Instrukcje">Instrukcje</option>
-            <option value="Przerwa">Przerwa</option>
-            <option value="Anomalia">Anomalia</option>
-            <option value="Copacking">Copacking</option>
-            <option value="Delegacja">Delegacja</option>
-          </select>
-        </div>
-        <div id="params-block-stop"></div>
-        <div class="menu-grid" style="grid-template-columns: 2fr 1fr;">
-          <button onclick="finishProcess()" class="btn-main btn-stop" style="height: 60px;">ZATWIERDŹ STOP</button>
-          <button onclick="backToMenu()" class="btn-main" style="height: 60px; background: var(--slate-800);">WRÓĆ</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="bottom-cards">
-      <div class="card-info">
-        <div class="card-title">Instrukcja</div>
-        <div id="slides-container">
-          <div class="instruction-slide active"><b>1.</b> Wybierz START lub STOP na kafelkach powyżej.</div>
-          <div class="instruction-slide"><b>2.</b> Zbliż kartę do czytnika, aby wpisać ID.</div>
-          <div class="instruction-slide"><b>3.</b> Wypełnij dane i kliknij zielony/czerwony przycisk.</div>
-        </div>
-        <div style="margin-top:12px; display:flex; gap:10px; justify-content:center;">
-          <button class="btn-nav" onclick="changeSlide(-1)">←</button>
-          <button class="btn-nav" onclick="changeSlide(1)">→</button>
-        </div>
-      </div>
-
-      <div class="card-info">
-        <div class="card-title">TOP 3 Oklejanie</div>
-        <div id="topOklejanie">Ładowanie...</div>
-      </div>
-    </div>
-
-    <div class="active-users-card" style="margin-top: 20px;">
-      <h3 style="font-size:0.8rem; margin-top:0; margin-bottom:12px; color:var(--slate-500); font-weight:800; text-transform:uppercase;">Aktualnie pracują</h3>
-      <div id="activeUsers">Pobieranie danych...</div>
+<body class="min-h-screen p-4 sm:p-6">
+  <div id="passwordVerificationSection">
+    <div class="password-box">
+      <h2 style="color:var(--primary); margin:0 0 10px 0;">Weryfikacja</h2>
+      <p style="color:#64748b; margin-bottom:25px; font-size:0.9rem;">Wprowadź hasło dostępu</p>
+      
+      <input type="password" 
+            id="passwordInput" 
+            maxlength="8" 
+            placeholder="••••" 
+            style="text-align:center; font-size:2.5rem; letter-spacing:10px; margin-bottom:25px; width: 100%;">
+      
+      <button onclick="verifyAndUnlock()" class="btn-main btn-start" style="height:70px;">
+        ODBLOKUJ
+      </button>
     </div>
   </div>
+  <div class="w-full max-w-3xl mx-auto bg-white shadow-2xl rounded-xl p-6 sm:p-10 space-y-8">
 
-  <footer style="margin-top:24px; color:var(--slate-500); font-size:0.7rem; text-align:center; padding-bottom:30px;">
-    &copy; 2026 FM Logistic - System Rejestracji Procesów
+    <header class="flex flex-col sm:flex-row items-left justify-between gap-4 sm:gap-6 pb-4 border-b border-slate-200">
+        <img 
+            src="https://placehold.co/200x60/0033A0/FFFFFF?text=FM+Logistic&font=inter" 
+            alt="Logo FM Logistic" 
+            class="h-10 sm:h-12 object-contain"
+            onerror="this.onerror=null; this.src='https://placehold.co/200x60/cccccc/333333?text=Logo+Error&font=inter';"
+        >
+        <div class="text-left sm:text-left">
+            <h1 class="text-2xl sm:text-3xl font-bold text-blue-700">Rejestracja Procesu</h1>
+            <p class="text-sm text-slate-500">Dla osób firm zewnętrznych</p>
+        </div>
+    </header>
+
+    
+    <div id="admin-tools" class="text-center">
+      <button onclick="confirmClearSessions()" class="bg-orange-500 hover:bg-orange-600 text-white font-medium py-2.5 px-5 rounded-lg shadow-sm text-sm inline-flex items-center gap-2">
+        <span class="text-lg">⚙️</span> [ADMIN▶] Wyczyść aktywne sesje
+      </button>
+    </div>
+
+    <div id="mainMenu" class="flex flex-row flex-nowrap gap-4 justify-center">
+      <button class="w-full sm:w-auto flex-1 bg-green-500 hover:bg-green-600 text-white font-semibold  px-6 rounded-lg shadow-md text-lg flex items-center justify-left gap-2" onclick="showSection('start')">
+        <span class="text-2xl">▶</span> START
+      </button>
+      <button class="w-full sm:w-auto flex-1 bg-red-500 hover:bg-red-600 text-white font-semibold  px-2 rounded-lg shadow-md text-lg flex items-center justify-right gap-2" onclick="showSection('stop')">
+        <span class="text-2xl">■</span> STOP
+      </button>
+    </div>
+
+    <div id="startSection" class="section space-y-6">
+      <h3 class="text-2xl font-semibold text-blue-700 text-center">START</h3>
+      <div>
+        <label for="login" class="block text-sm font-medium text-slate-700 mb-1">Zbliż identyfikator:</label>
+        <input type="text" id="login" class="mt-1 block w-full">
+      </div>
+      <div>
+        <label for="procedure" class="block text-sm font-medium text-slate-700 mb-1">Procedura:</label>
+        <select id="procedure" onchange="updateFields('start')" class="mt-1 block w-full">
+          <option value="">-- wybierz --</option>
+          <option value="S_START">Start​</option>
+          <option value="Oklejanie">Zalando</option>
+          <option value="Oklejanieplus">Testery</option>
+          <option value="Briefing">Briefing</option>
+          <option value="Auto_Labeling">Auto_Labeling</option>
+          <option value="Kartony">Kartony</option>
+          <option value="Drukowanie">Drukowanie</option>
+          <option value="Przerwa">Przerwa</option>
+          <option value="Anomalia">Anomalia</option>
+          <option value="Copacking">Copacking</option>
+          <option value="Delegacja">Delegacja</option>
+          <option value="Simplex">Simplex</option>
+          <option value="Process">Process</option>
+          <option value="S_END">End</option>
+        </select>
+      </div>
+      <div id="sscc-block" style="display:none;">
+        <label for="sscc" class="block text-sm font-medium text-slate-700 mb-1">SSCC / ID Kontenera:</label>
+        <input type="text" id="sscc" class="mt-1 block w-full">
+      </div>
+      <div class="flex flex-row flex-nowrap gap-4 justify-center">
+        <button onclick="startProcess()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg shadow-md">Start</button>
+        <button onclick="backToMenu()" class="w-full bg-slate-500 hover:bg-slate-600 text-white py-3 px-4 rounded-lg shadow-md">Wróć</button>
+      </div>
+    </div>
+
+    <div id="stopSection" class="section space-y-6">
+      <h3 class="text-2xl font-semibold text-blue-700 text-center">STOP</h3>
+      <div>
+        <label for="stop_login" class="block text-sm font-medium text-slate-700 mb-1">Zbliż identyfikator:</label>
+        <input type="text" id="stop_login" class="mt-1 block w-full">
+      </div>
+      <div>
+        <label for="stop_procedure" class="block text-sm font-medium text-slate-700 mb-1">Procedura:</label>
+        <select id="stop_procedure" onchange="updateFields('stop')" class="mt-1 block w-full">
+          <option value="">-- wybierz --</option>
+          <option value="S_START">Start</option>
+          <option value="Oklejanie">Zalando</option>
+          <option value="Oklejanieplus">Testery</option>
+          <option value="Briefing">Briefing</option>
+          <option value="Auto_Labeling">Auto_Labeling</option>
+          <option value="Kartony">Kartony</option>
+          <option value="Drukowanie">Drukowanie</option>
+          <option value="Przerwa">Przerwa</option>
+          <option value="Anomalia">Anomalia</option>
+          <option value="Copacking">Copacking</option>
+          <option value="Delegacja">Delegacja</option>
+          <option value="Simplex">Simplex</option>
+          <option value="Process">Process</option>
+          <option value="S_END">End</option>
+        </select>
+      </div>
+      <div id="params-block-stop" class="space-y-4"></div>
+      <div class="flex flex-row flex-nowrap gap-4 justify-center">
+        <button onclick="finishProcess()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg shadow-md">Zakończ</button>
+        <button onclick="backToMenu()" class="w-full bg-slate-500 hover:bg-slate-600 text-white py-3 px-4 rounded-lg shadow-md">Wróć</button>
+      </div>
+    </div>
+
+    <div id="status" class="text-center text-green-600 font-semibold mt-4"></div>
+    
+    <div id="bottom-container">
+      <div id="instruction-box" class="flex-1 p-4 sm:p-6 rounded-lg shadow">
+        <h3 class="text-lg font-semibold text-center text-blue-700 mb-3">INSTRUKCJA / ІНСТРУКЦІЯ / INSTRUCTION</h3>
+        <div class="relative min-h-[120px]"> <div class="instruction-slide active text-sm text-slate-600 space-y-1 text-center sm:text-left">
+            <p><b>PL:</b> Wybierz START lub STOP<br><b>UA:</b> Оберіть START або STOP<br><b>EN:</b> Select START or STOP<br><b>ES:</b> Selecciona START o STOP<br><b>RU:</b> Выберите START или STOP</p>
+          </div>
+          <div class="instruction-slide text-sm text-slate-600 space-y-1 text-center sm:text-left" style="display: none;">
+            <p><b>PL:</b> Zbliż identyfikator<br><b>UA:</b> Zbliż identyfikator<br><b>EN:</b> Scan identifier<br><b>ES:</b> Escanea el identificador<br><b>RU:</b> Сканируйте идентификатор</p>
+          </div>
+          <div class="instruction-slide text-sm text-slate-600 space-y-1 text-center sm:text-left" style="display: none;">
+            <p><b>PL:</b> Wypełnij wymagane parametry<br><b>UA:</b> Заповніть необхідні параметри<br><b>EN:</b> Fill in the required parameters<br><b>ES:</b> Rellena los parámetros requeridos<br><b>RU:</b> Заполните необходимые параметры</p>
+          </div>
+        </div>
+        <div class="instruction-nav text-center mt-3">
+            <button onclick="changeSlide(-1)" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full mx-1 text-lg shadow-md">←</button>
+            <button onclick="changeSlide(1)" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full mx-1 text-lg shadow-md">→</button>
+        </div>
+      </div>
+
+      <div id="topOklejanie-box" class="flex-1 p-4 sm:p-6 rounded-lg shadow">
+        <h3 class="text-lg font-semibold text-center text-sky-700 mb-3">Nasze ZAWODOWCY! – TOP 3 oklejanie</h3>
+        <div id="topOklejanie" class="text-sm text-slate-700 space-y-2">Ładowanie...</div>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <h3 class="text-xl font-semibold text-center text-blue-700 mb-4">Aktywni użytkownicy:</h3>
+      <div id="activeUsers" class="space-y-3 max-h-80 overflow-y-auto pr-2 bg-slate-50 p-4 rounded-lg shadow border border-slate-200">
+        Ładowanie...
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="w-full max-w-3xl mx-auto text-center mt-6 pb-6">
+      <p class="text-xs text-slate-500">&copy; <span id="currentYear"></span> FM Logistic - Aplikacja Rejestracji Procesu.</p>
   </footer>
+
   <script>
-        // --- Zmienne globalne JS ---
-        let currentSection = 'mainMenu';
-        let slideIndex = 0;
-        let servicesConfig = {}; // Zmienna do przechowywania konfiguracji
+    const progiWydajnosci = [
+      { szt: 1000, prog: "150%" },
+      { szt: 940,  prog: "140%" },
+      { szt: 880,  prog: "130%" },
+      { szt: 820,  prog: "120%" },
+      { szt: 760,  prog: "110%" },
+      { szt: 700,  prog: "100%" },
+      { szt: 630,  prog: "90%" },
+      { szt: 560,  prog: "80%" },
+      { szt: 490,  prog: "70%" },
+      { szt: 420,  prog: "60%" },
+      { szt: 0,    prog: "50%" }
+    ];
+    let currentSlide = 0;
+    const slides = document.querySelectorAll(".instruction-slide");
+    let isStarting = false;
+    let isStopping = false;
+    const paramMapStop = { 
+      Oklejanie: ["Ilosc_szt"], 
+      Oklejanieplus: ["Ilosc_szt"], 
+      Auto_Labeling: ["Ilosc_szt", "Ilosc_ludzi"], 
+      Copacking: ["Ilosc_szt"], 
+      Delegacja: ["Klient"],
+      Kartony:["Ilosc_szt"],
+      Simplex:["Ilosc_szt"]
+    };
+    let refreshInterval;
+    function changeSlide(direction) {
+      if (slides.length === 0) return;
+      slides[currentSlide].style.display = "none"; 
+      slides[currentSlide].classList.remove("active");
+      currentSlide = (currentSlide + direction + slides.length) % slides.length;
+      slides[currentSlide].style.display = "block"; 
+      slides[currentSlide].classList.add("active");
+    }
 
-        const instructionSlides = document.querySelectorAll('.instruction-slide');
-        
+    function loadTopOklejanie() {
+      google.script.run
+        .withSuccessHandler(renderTopOklejanie)
+        .getTopOklejanieFromCache(); 
+    }
 
-        function displayTopOklejanie(data) {
-          const container = document.getElementById('topOklejanie');
-          container.innerHTML = '';
-          if (data.length === 0) {
-            container.textContent = "Brak danych z dziś.";
-            return;
-          }
-          
-          data.forEach((item, index) => {
-            const p = document.createElement('p');
-            p.textContent = `${index + 1}. ${item.user} - ${Math.round(item.duration / 60)} min`;
-            container.appendChild(p);
-          });
-        }
-        
-        let refreshInterval;
+    function renderTopOklejanie(list) {
+      const container = document.getElementById("topOklejanie");
+      if(!container) return;
+      container.innerHTML = "";
 
-        function initializeRefresh() {
-          // Funkcja, która odświeża statystyki
-          const refreshStats = () => {
-            google.script.run
-              .withSuccessHandler(onTopWorkersLoaded)
-              .withFailureHandler(onError)
-              .getWorkmodeStatsForMonth("A_FLO");
-          };
-
-          // Ustaw interwał odświeżania na 12 godzin (12 * 60 * 60 * 1000 ms)
-          // Przykładowo dla 2 razy dziennie. Możesz dostosować, np. o 6 rano i 18 wieczorem.
-          refreshInterval = setInterval(refreshStats, 12 * 60 * 60 * 1000);
-        }
-        function onTopWorkersLoaded(workers) {
-          const container = document.getElementById('topOklejanie'); // Poprawne ID z HTML
-          if (!container) {
-              console.error("Element z ID 'topOklejanie' nie został znaleziony.");
-              return;
-          }
-          
-          container.innerHTML = ''; // Wyczyść wcześniejsze dane
-          
-          if (workers.length === 0) {
-              container.innerHTML = '<p class="text-gray-500">Brak danych dla tego miesiąca.</p>';
-              return;
-          }
-
-          workers.forEach((worker, index) => {
-              const workerDiv = document.createElement('div');
-              const rankColors = ['bg-yellow-300', 'bg-gray-300', 'bg-yellow-800'];
-              const medalEmoji = ['🥇', '🥈', '🥉'];
-              workerDiv.className = `p-3 rounded-lg flex items-center shadow-md ${rankColors[index] || 'bg-gray-200'}`;
-              workerDiv.innerHTML = `
-                  <div class="text-2xl mr-4">${medalEmoji[index] || ''}</div>
-                  <div class="flex-grow">
-                      <p class="font-bold text-lg">${worker.user}</p>
-                      <p class="text-sm">Wykonane: <span class="font-semibold">${worker.qty} sztuk</span></p>
-                  </div>
-              `;
-              container.appendChild(workerDiv);
-          });
+      if (!Array.isArray(list) || list.length === 0) {
+        container.innerText = "Brak danych.";
+        return;
       }
 
+      const medalStyles = [
+        { emoji: "🥇", classes: "bg-yellow-50 border-yellow-400 text-yellow-800 font-semibold" },
+        { emoji: "🥈", classes: "bg-slate-100 border-slate-400 text-slate-700 font-medium" },
+        { emoji: "🥉", classes: "bg-orange-50 border-orange-400 text-orange-700 font-medium" }
+      ];
 
+      list.forEach(({ user, qty }, index) => {
+        const div = document.createElement("div");
+        let baseClasses = "p-3 border rounded-lg shadow-sm text-sm mb-2"; 
+        div.className = baseClasses; 
 
-        function showSection(sectionId) {
-            const sections = document.querySelectorAll('.section');
-            sections.forEach(sec => sec.style.display = 'none');
+        let contentText = `${index + 1}. ${user}: ${qty} sztuk`;
 
-            document.getElementById('mainMenu').style.display = 'none';
-
-            const sectionToShow = document.getElementById(sectionId);
-            if (sectionToShow) {
-                sectionToShow.style.display = 'block';
-            }
-        }
-
-        function backToMenu() {
-            document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
-            document.getElementById('mainMenu').style.display = 'flex';
-        }
-
-        
-        
-
-        
-        
-        function updateStatus(message, isSuccess = true) {
-            const statusDiv = document.getElementById('status');
-            statusDiv.textContent = message;
-            statusDiv.className = isSuccess ? 'text-center text-green-600 font-semibold' : 'text-center text-red-600 font-semibold';
-            setTimeout(() => statusDiv.textContent = '', 5000);
-        }
-
-        function updateFields(section) {
-            const procedureSelect = document.getElementById(section === 'start' ? 'procedure' : 'stop_procedure');
-            const paramsBlock = document.getElementById(section === 'start' ? 'params-block-start' : 'params-block-stop');
-            const selectedProcedure = procedureSelect.value;
-            paramsBlock.innerHTML = '';
-
-            const params = servicesConfig[selectedProcedure]?.[section === 'start' ? 'startParameters' : 'stopParameters'];
-
-            if (params && params.length > 0) {
-                params.forEach(param => {
-                    const label = document.createElement('label');
-                    label.textContent = `${param}:`;
-                    label.className = "block text-sm font-medium text-slate-700 mb-1";
-
-                    const input = document.createElement('input');
-                    input.type = "text";
-                    input.id = param;
-                    input.className = "mt-1 block w-full p-2.5 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500";
-                    input.placeholder = `Wprowadź ${param}`;
-
-                    const div = document.createElement('div');
-                    div.append(label, input);
-                    paramsBlock.appendChild(div);
-                });
-            }
-        }
-
-        function loadActiveUsers() {
-            google.script.run
-                .withSuccessHandler(displayActiveUsers)
-                .withFailureHandler(error => {
-                    console.error("Błąd ładowania aktywnych użytkowników:", error);
-                    document.getElementById('activeUsers').textContent = "Błąd: Nie można załadować listy.";
-                })
-                .getActiveSessions();
-        }
-
-        function displayActiveUsers(sessions) {
-            const container = document.getElementById('activeUsers');
-            container.innerHTML = '';
-            if (sessions.length === 0) {
-                container.textContent = "Brak aktywnych procesów.";
-                return;
-            }
-            sessions.forEach(session => {
-                const card = document.createElement('div');
-                card.className = "user-card p-4 rounded-lg shadow-sm";
-                card.innerHTML = `
-                    <div class="flex items-center space-x-3">
-                        <span class="text-xl">🧑‍🏭</span>
-                        <div>
-                            <p class="font-semibold text-lg text-blue-900">${session.loginMask}</p>
-                            <p class="text-sm text-slate-700">${session.procedure}</p>
-                            <p class="text-xs text-slate-500">od: ${new Date(session.startTimestamp).toLocaleString()}</p>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-        
-        // --- Funkcje procesów ---
-
-        function startProcess() {
-            const login = document.getElementById('login').value.trim();
-            const procedure = document.getElementById('procedure').value.trim();
-            
-            if (!login || !procedure) {
-                updateStatus("Login i procedura są wymagane.", false);
-                return;
-            }
-
-            // Upewnij się, że zbierasz dynamiczne parametry startu
-            const startParams = getDynamicParams('start');
-
-            const sessionData = {
-                login: login,
-                loginMask: null,
-                procedure: procedure,
-                start: new Date().toISOString(),
-                startTimestamp: new Date().getTime(),
-                ...startParams // Dodaj dynamiczne parametry startu
-            };
-
-            google.script.run
-                .withSuccessHandler(response => {
-                    if (response.success) {
-                        updateStatus("Proces " + procedure + " rozpoczęty pomyślnie.");
-                        clearInputs();
-                        backToMenu();
-                        loadActiveUsers();
-                    } else {
-                        updateStatus("Błąd: " + response.message, false);
-                    }
-                })
-                .withFailureHandler(error => {
-                    updateStatus("Błąd serwera: " + error.message, false);
-                })
-                .startProcess(sessionData);
-        }
-        function getDynamicParams(section) {
-          const paramsBlock = document.getElementById(section === 'start' ? 'params-block-start' : 'params-block-stop');
-          const inputs = paramsBlock.querySelectorAll('input');
-          const params = {};
-          inputs.forEach(input => {
-            // Upewnij się, że wartość jest traktowana jako ciąg znaków i jest przycinana
-            params[input.id] = input.value ? String(input.value).trim() : '';
+        if (index < medalStyles.length) { 
+          const style = medalStyles[index];
+          contentText = `${style.emoji} ${contentText}`;
+          style.classes.split(' ').forEach(cls => { 
+            // These classes are now defined in the <style> tag
+            div.classList.add(cls.replace(/\\:/g, ':')); 
           });
-          return params;
+        } else { 
+          div.classList.add("border-slate-200"); 
+          div.classList.add("text-slate-600");
         }
-        function finishProcess() {
-            const login = document.getElementById('stop_login').value.trim();
-            const procedure = document.getElementById('stop_procedure').value.trim();
+        
+        div.innerText = contentText;
+        container.appendChild(div);
+      });
+    }
+  </script>
+
+  <script>
+    
+    
+
+    function showSection(section) {
+      document.getElementById("mainMenu").style.display = "none";
+      const startSect = document.getElementById("startSection");
+      const stopSect = document.getElementById("stopSection");
+      if(startSect) startSect.style.display = section === "start" ? "block" : "none";
+      if(stopSect) stopSect.style.display = section === "stop" ? "block" : "none";
+      
+      setTimeout(() => {
+        if (section === "start" && document.getElementById("login")) {
+          document.getElementById("login").focus();
+        } else if (section === "stop" && document.getElementById("stop_login")) {
+          document.getElementById("stop_login").focus();
+        }
+      }, 100); 
+    }
+
+    function confirmClearSessions() {
+      const pass = prompt("Podaj hasło administratora:");
+      if (pass === "admin123") { 
+        if (typeof google !== 'undefined' && google.script && google.script.run) {
+            google.script.run.withSuccessHandler(() => {
+              alert("Wyczyszczono aktywne sesje!"); 
+              loadActiveUsers();
+            }).withFailureHandler(err => alert("Błąd czyszczenia sesji: " + err.message))
+            .clearAllActiveSessions();
+        } else {
+            console.warn("google.script.run not available for confirmClearSessions. Simulating.");
+            alert("Symulacja: Wyczyszczono aktywne sesje!");
+            loadActiveUsers(); 
+        }
+      } else if (pass !== null && pass !== "") { 
+        alert("Błędne hasło.");
+      }
+    }
+    /**
+ * Pobiera hasło z inputa i wysyła do weryfikacji na serwer
+ */
+    function verifyAndUnlock() {
+      const passwordInput = document.getElementById('passwordInput');
+      const enteredPassword = passwordInput.value.trim();
+
+      if (!enteredPassword) {
+        alert('Wprowadź hasło, aby kontynuować.');
+        return;
+      }
+
+      // Wywołanie funkcji po stronie .gs
+      google.script.run
+        .withSuccessHandler(response => {
+          if (response === 'OK') {
+            unlockApp(); // Sukces - odblokuj interfejs
+          } else {
+            alert("Błędne hasło. Spróbuj ponownie.");
+            passwordInput.value = "";
+            passwordInput.focus();
+          }
+        })
+        .withFailureHandler(error => {
+          alert('Błąd krytyczny serwera: ' + error.message);
+        })
+        .verifyPassword(enteredPassword); // Nazwa funkcji musi być zgodna z Code.gs
+    }
+
+    /**
+     * Usuwa blokadę ekranu i aktywuje przyciski
+     */
+    function unlockApp() {
+      const passwordSection = document.getElementById('passwordVerificationSection');
+      if (passwordSection) {
+        passwordSection.style.display = 'none';
+      }
+
+      // Aktywacja przycisków w menu głównym (jeśli mają atrybut disabled)
+      const buttons = document.querySelectorAll('.btn-main');
+      buttons.forEach(btn => {
+        btn.disabled = false;
+      });
+
+      console.log("Aplikacja odblokowana pomyślnie.");
+    }
+
+    // Opcjonalnie: Obsługa klawisza Enter w polu hasła
+    document.getElementById('passwordInput')?.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') {
+        verifyAndUnlock();
+      }
+    });
+    function backToMenu() {
+      const mainMenu = document.getElementById("mainMenu");
+      const startSect = document.getElementById("startSection");
+      const stopSect = document.getElementById("stopSection");
+      const statusEl = document.getElementById("status");
+
+      if(mainMenu) mainMenu.style.display = "flex"; 
+      if(startSect) startSect.style.display = "none";
+      if(stopSect) stopSect.style.display = "none";
+      if(statusEl) statusEl.innerText = ""; 
+    }
+
+    function updateFields(context) {
+        const procSelect = document.getElementById(context === "start" ? "procedure" : "stop_procedure");
+        if (!procSelect) return;
+        const proc = procSelect.value;
+
+        if (context === "start") {
+            const ssccBlock = document.getElementById("sscc-block");
+            if (ssccBlock) {
+                ssccBlock.style.display = (proc === "Oklejanie" || proc === "Oklejanieplus"|| proc === "Auto_Labeling" || proc === "Simplex" ) ? "block" : "none";
+            }
+            return;
+        }
+
+        
+        const paramsBlockStop = document.getElementById("params-block-stop");
+        if (!paramsBlockStop) return;
+        paramsBlockStop.innerHTML = "";
+
+        const fieldsToCreate = paramMapStop[proc] || [];
+        fieldsToCreate.forEach(id => {
+            const fieldContainer = document.createElement("div");
+            fieldContainer.className = "mb-3"; 
+
+            const label = document.createElement("label");
+            label.innerText = id.replace(/_/g, " ") + ":";
             
-            if (!login || !procedure) {
-                updateStatus("Login i procedura są wymagane.", false);
-                return;
-            }
+            label.className = "block text-sm font-medium text-slate-700 mb-1"; 
+            label.htmlFor = `${context}_${id}`;
+            fieldContainer.appendChild(label);
 
-            google.script.run
-                .withSuccessHandler(sessions => {
-                    handleSessions(sessions, login, procedure);
-                })
-                .withFailureHandler(error => {
-                    updateStatus("Błąd serwera: " + error.message, false);
-                })
-                .getActiveSessions();
+            if (id === "Komentarz" && proc === "Anomolia") {
+                const select = document.createElement("select");
+                select.id = `${context}_${id}`;
+                select.className = "mt-1 block w-full"; 
+                ["ZWOZENIE", "PREPARACJA", "SPRZATANIE"].forEach(txt => {
+                    const option = document.createElement("option");
+                    option.value = txt;
+                    option.text = txt;
+                    select.appendChild(option);
+                });
+                fieldContainer.appendChild(select);
+            } else if (id === "Klient" && proc === "Delegacja") {
+                const select = document.createElement("select");
+                select.id = `${context}_${id}`;
+                select.className = "mt-1 block w-full"; 
+                ["Lindt Copacking", "Mattel", "Foodcare", "Lindt","Yves Rocher","Kontrola st.","HUB"].forEach(txt => {
+                    const option = document.createElement("option");
+                    option.value = txt;
+                    option.text = txt;
+                    select.appendChild(option);
+                });
+                fieldContainer.appendChild(select);
+            } else { 
+                const input = document.createElement("input");
+                input.id = `${context}_${id}`;
+                input.type = "text";
+                input.className = "mt-1 block w-full"; 
+                fieldContainer.appendChild(input);
+            }
+            paramsBlockStop.appendChild(fieldContainer);
+        });
+    }
+
+    function startProcess() {
+        if (isStarting) return;
+        isStarting = true;
+        
+        const loginInput = document.getElementById("login");
+        const procedureSelect = document.getElementById("procedure");
+        const ssccInput = document.getElementById("sscc");
+
+        const login = loginInput ? loginInput.value.trim() : "";
+        const procedure = procedureSelect ? procedureSelect.value : "";
+        const sscc = ssccInput ? ssccInput.value.trim() : "";
+
+        if (!login || !procedure) {
+            Swal.fire("Błąd", "Wprowadź login i procedurę.", "warning");
+            //alert("Wprowadź login i procedurę.");
+            isStarting = false;
+            return;
         }
-
-        function handleSessions(sessions, login, procedure) {
-            const match = sessions.find(s => 
-                String(s.login).trim().toLowerCase() === String(login).trim().toLowerCase() && 
-                String(s.procedure).trim().toLowerCase() === String(procedure).trim().toLowerCase()
-            );
-
-            if (!match) {
-                updateStatus("Nie znaleziono pasującej, aktywnej sesji.", false);
-                return;
-            }
-
-            const stopParams = getDynamicParams('stop');
-
-            const stopData = {
-                login: match.login,
-                loginMask: match.loginMask,
-                procedure: match.procedure,
-                start: match.start,
-                stop: new Date().toISOString(),
-                duration: Math.round((new Date().getTime() - match.startTimestamp) / 1000),
-                sscc: match.sscc,
-                workmode: servicesConfig[procedure]?.workmode || "",
-                ...stopParams // Dodaj dynamiczne parametry stopu
+        
+        if (["Oklejanie","Oklejanieplus", "Auto_Labeling", "Simplex"].includes(procedure) && !sscc) {
+            //alert("Skanowanie kodu SSCC jest obowiązkowe!");
+            Swal.fire("Brak SSCC", "Skanowanie kodu SSCC jest obowiązkowe!", "error");
+            isStarting = false; 
+            return; 
+        }
+        Swal.fire({
+          title: 'Weryfikacja...',
+          text: 'Proszę czekać',
+          allowOutsideClick: false,
+          didOpen: () => { Swal.showLoading(); }
+        });
+        const proceedWithAddingSession = (currentMaskedLogin) => {
+            const data = {
+                login: login,
+                loginMask: currentMaskedLogin,
+                procedure: procedure,
+                sscc: ["Oklejanie","Oklejanieplus", "Auto_Labeling", "Simplex"].includes(procedure) ? sscc : "",
+                start: new Date().toISOString(),
+                startTimestamp: Date.now()
             };
 
             google.script.run
-                .withSuccessHandler(response => {
-                    if (response.success) {
-                        updateStatus("Proces zakończony pomyślnie.");
-                        clearInputs();
+                .withSuccessHandler(() => {
+                    Swal.fire({
+                      icon: 'success',
+                      title: 'Rozpoczęto!',
+                      text: `Zarejestrowano start dla: ${currentMaskedLogin}`,
+                      timer: 2000,
+                      showConfirmButton: false
+                    }); 
+                    if (loginInput) loginInput.value = "";
+                    if (procedureSelect) procedureSelect.value = "";
+                    if (ssccInput) ssccInput.value = "";
+                    document.getElementById("sscc-block").style.display = "none";
+                    backToMenu();
+                    loadActiveUsers();
+                    isStarting = false; // Reset blokady dopiero po sukcesie
+                })
+                .withFailureHandler((err) => {
+                    Swal.fire("Błąd serwera", err.message, "error");
+                    isStarting = false; // Reset blokady przy błędzie
+                })
+                .addToActive(data);
+        };
+
+        // KROK 1: Pobranie maski i sprawdzenie aktywności
+        google.script.run
+            .withSuccessHandler((maskedLogin) => {
+                google.script.run
+                    .withSuccessHandler((res) => {
+                        if (res.isActive) {
+                            Swal.fire("Aktywna sesja", res.message, "info");
+                            isStarting = false;
+                        } else {
+                            proceedWithAddingSession(maskedLogin);
+                        }
+                    })
+                    .checkIfUserIsActive(maskedLogin);
+            })
+            .resolveLogin(login);
+    }
+
+    function finishProcess() {
+        if (isStopping) return;
+        isStopping = true;
+
+        const loginRawInput = document.getElementById("stop_login");
+        const procedureSelect = document.getElementById("stop_procedure");
+        const loginRaw = loginRawInput ? loginRawInput.value.trim() : "";
+        const procedure = procedureSelect ? procedureSelect.value : "";
+
+        if (!loginRaw || !procedure) {
+            Swal.fire("Błąd", "Wprowadź dane do zakończenia", "warning");
+            isStopping = false; 
+            return;
+        }
+
+        Swal.fire({
+            title: 'Weryfikacja sesji...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); }
+        });
+
+        google.script.run
+            .withFailureHandler(err => { 
+                Swal.fire("Błąd", "Błąd połączenia: " + err, "error");
+                isStopping = false; 
+            })
+            .withSuccessHandler((sessions) => {
+                const match = sessions.find(s => String(s.login).toLowerCase() === loginRaw.toLowerCase() && s.procedure === procedure);
+                
+                if (!match) {
+                    Swal.fire("Nie znaleziono", "Nie znaleziono aktywnego procesu!", "error");
+                    isStopping = false; 
+                    return;
+                }
+
+                const stopDate = new Date(); 
+                let iloscValue = 0;
+
+                const data = {
+                    login: match.login,
+                    loginMask: match.loginMask,
+                    procedure: procedure,
+                    sscc: match.sscc || "",
+                    start: match.start,
+                    stop: stopDate.toISOString()
+                };
+
+                // Pobieranie parametrów (np. Ilosc_szt)
+                const fields = paramMapStop[procedure] || [];
+                fields.forEach(id => {
+                    const el = document.getElementById(`stop_${id}`);
+                    if (el) {
+                        const val = el.value.trim();
+                        data[id] = val;
+                        if (id === "Ilosc_szt") {
+                            iloscValue = parseFloat(val) || 0;
+                            data.ilosc = iloscValue;
+                        }
+                    }
+                });
+
+                // --- LOGIKA WYDAJNOŚCI (TYLKO DLA OKLEJANIA) ---
+                let performanceInfo = "";
+                if (procedure === "Oklejanie"  && iloscValue > 0) {
+                    const startTime = match.startTimestamp ? new Date(match.startTimestamp) : new Date(match.start);
+                    const diffMs = Math.max(stopDate - startTime, 60000); // Minimum 60 000 ms (1 minuta)
+                    const diffHours = diffMs / (1000 * 60 * 60);
+                    
+                    if (diffHours > 0) {
+                        const wydajnoscH = Math.round(iloscValue / diffHours);
+                        
+                        // Szukamy progu premii ze słownika
+                        const prog = progiWydajnosci.find(p => wydajnoscH >= p.min) || progiWydajnosci[progiWydajnosci.length - 1];
+
+                        // Dobór koloru
+                        let kolor = "#16a34a"; // Zielony (>=700 szt)
+                        if (wydajnoscH < 700) kolor = "#f97316"; // Pomarańczowy
+                        if (wydajnoscH < 420) kolor = "#dc2626"; // Czerwony
+
+                        performanceInfo = `
+                            <div style="margin-top:15px; padding:15px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; text-align:center;">
+                                <div style="font-size:0.85rem; color:#64748b; text-transform:uppercase; font-weight:600; letter-spacing:1px;">Wydajność Realna</div>
+                                <div style="font-size:2.25rem; font-weight:900; color:${kolor}; margin:5px 0;">
+                                    ${wydajnoscH} <span style="font-size:1rem; font-weight:500;">szt./h</span>
+                                </div>
+                                <div style="display:inline-block; padding:6px 15px; background:${kolor}; color:white; border-radius:999px; font-weight:800; font-size:1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                    PREMIA: ${prog.premia}
+                                </div>
+                                <hr style="margin:10px 0; border:0; border-top:1px solid #e2e8f0;">
+                                <div style="font-size: 0.75rem; color: #94a3b8;">
+                                    Czas: ${Math.round(diffHours * 60)} min | Ilość: ${iloscValue} szt.
+                                </div>
+                            </div>`;
+                    }
+                }
+
+                // KROK 3: Zapis na serwerze
+                google.script.run
+                    .withFailureHandler(err => { 
+                        Swal.fire("Błąd zapisu", err.message, "error");
+                        isStopping = false; 
+                    })
+                    .withSuccessHandler(() => {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Zakończono i zapisano!',
+                            html: (procedure === "Oklejanie" && performanceInfo !== "") 
+                                  ? `Pracownik: <b>${match.loginMask}</b>${performanceInfo}` 
+                                  : `Proces <b>${procedure}</b> został zapisany.`,
+                            confirmButtonColor: '#3b82f6'
+                        });
+                        
+                        loginRawInput.value = "";
+                        procedureSelect.value = "";
+                        const block = document.getElementById("params-block-stop");
+                        if (block) block.innerHTML = "";
+                        
                         backToMenu();
                         loadActiveUsers();
-                    } else {
-                        updateStatus("Błąd: " + response.message, false);
-                    }
-                })
-                .withFailureHandler(error => {
-                    updateStatus("Błąd serwera: " + error.message, false);
-                })
-                .finishProcess(stopData);
-        }
-        
-        
+                        isStopping = false;
+                    })
+                    .completeProcessOnServer(data);
+            })
+            .getActiveSessions();
+    }
+    function completeProcessOnServer(data) {
+      // 1. Zapisz do arkusza
+      saveProcessData(data);
+      // 2. Usuń z aktywnych
+      removeFromActive(data.login, data.procedure);
+      return "OK";
+    }
+    function renderActiveUsers(usersAndMap) {
+      const container = document.getElementById("activeUsers");
+      if (!container) return;
+      container.innerHTML = ""; 
 
-        function clearInputs() {
-            document.getElementById('login').value = '';
-            document.getElementById('procedure').value = '';
-            document.getElementById('stop_login').value = '';
-            document.getElementById('stop_procedure').value = '';
-            document.getElementById('params-block-start').innerHTML = '';
-            document.getElementById('params-block-stop').innerHTML = '';
-        }
-        
-        // --- Funkcje czyszczenia ---
-        
-        function confirmClearSessions() {
-          if (confirm("Czy na pewno chcesz usunąć wszystkie aktywne sesje?")) {
-            google.script.run
-              .withSuccessHandler(response => {
-                updateStatus(response.message, response.success);
-                loadActiveUsers();
-              })
-              .withFailureHandler(error => {
-                updateStatus("Błąd: " + error.message, false);
-              })
-              .clearAllActiveSessions();
-          }
-        }
-        
-        // --- Funkcje instrukcji ---
-        
-        function changeSlide(n) {
-            instructionSlides[slideIndex].classList.remove('active');
-            slideIndex += n;
-            if (slideIndex >= instructionSlides.length) {
-                slideIndex = 0;
-            }
-            if (slideIndex < 0) {
-                slideIndex = instructionSlides.length - 1;
-            }
-            instructionSlides[slideIndex].classList.add('active');
-        }
+      if (!usersAndMap || !usersAndMap.users || !Array.isArray(usersAndMap.users)) {
+        console.warn("renderActiveUsers: Brak danych użytkowników lub niepoprawny format.", usersAndMap);
+        container.innerText = "Brak aktywnych użytkowników lub błąd danych.";
+        return;
+      }
+      const { users, loginMap } = usersAndMap;
 
-        // --- Inicjalizacja ---
-        
-        function initializeApp() {
-            loadServicesConfig();
-            loadActiveUsers();
-            loadTopWorkers();
-        }
-        function loadTopWorkers() {
-            google.script.run
-                .withSuccessHandler(onTopWorkersLoaded)
-                .withFailureHandler(error => {
-                    console.error("Błąd ładowania statystyk:", error);
-                    document.getElementById('top-workers-container').innerHTML = '<p class="text-gray-500">Błąd: Nie można załadować danych.</p>';
-                })
-                .getWorkmodeStatsForMonth("A_FLO");
-        }
-        function loadServicesConfig() {
-            google.script.run
-                .withSuccessHandler(config => {
-                    servicesConfig = config;
-                    populateProcedureSelects();
-                })
-                .withFailureHandler(onError)
-                .getServicesConfig();
-        }
-        function onError(error) {
-            console.error("Błąd serwera: ", error);
-            showMessage("Wystąpił błąd: " + error.message, 'error');
-        }
-        function populateProcedureSelects() {
-            const procedureSelect = document.getElementById('procedure');
-            const stopProcedureSelect = document.getElementById('stop_procedure');
-            
-            for (const procedure in servicesConfig) {
-                const optionStart = document.createElement('option');
-                optionStart.value = procedure;
-                optionStart.textContent = procedure;
-                procedureSelect.appendChild(optionStart);
-                
-                const optionStop = document.createElement('option');
-                optionStop.value = procedure;
-                optionStop.textContent = procedure;
-                stopProcedureSelect.appendChild(optionStop);
-            }
-        }
+      if (users.length === 0) {
+        container.innerText = "Brak aktywnych użytkowników.";
+        return;
+      }
+      console.log("Renderowanie aktywnych użytkowników:", users, "LoginMap:", loginMap);
 
-        window.onload = initializeApp;
-          
-         
-    </script>
+      users.forEach(u => {
+        const startTime = u.startTimestamp || (u.start ? new Date(u.start).getTime() : Date.now());
+        const since = Math.floor((Date.now() - startTime) / 1000);
+        const h = String(Math.floor(since / 3600)).padStart(2, '0');
+        const m = String(Math.floor((since % 3600) / 60)).padStart(2, '0');
+        const s = String(since % 60).padStart(2, '0');
+        
+        // Użyj loginMap do wyświetlenia zamaskowanego loginu, jeśli dostępny; w przeciwnym razie loginMask z sesji lub surowy login
+        const visibleLogin = (loginMap && u.login && loginMap[String(u.login).toLowerCase()]) ? 
+                             loginMap[String(u.login).toLowerCase()] : 
+                             (u.loginMask || u.login || "Nieznany");
+        
+        const userCard = document.createElement("div");
+        userCard.className = "bg-white p-3 rounded-lg shadow border border-slate-200 flex justify-between items-center text-sm";
+        
+        const userInfo = document.createElement("div");
+        const userNameP = document.createElement("p");
+        userNameP.className = "font-medium text-slate-800";
+        userNameP.innerText = `${visibleLogin} (${u.procedure || "Brak procedury"})`;
+        userInfo.appendChild(userNameP);
+
+        const statusP = document.createElement("p");
+        statusP.className = "text-xs";
+        if (u.procedure && String(u.procedure).toLowerCase() === "anomalia") {
+            statusP.innerHTML = `Status: <span class="status-anomalia">Anomalia</span>`;
+        } else {
+            statusP.innerHTML = `Status: <span class="status-aktywny">Aktywny</span>`;
+        }
+        userInfo.appendChild(statusP);
+        userCard.appendChild(userInfo);
+        
+        const timeP = document.createElement("p");
+        timeP.className = "font-mono bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs";
+        timeP.innerText = `${h}:${m}:${s}`;
+        userCard.appendChild(timeP);
+        
+        container.appendChild(userCard);
+      });
+    }
+
+    function loadActiveUsers() {
+      console.log("loadActiveUsers called");
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+            .withSuccessHandler(renderActiveUsers)
+            .withFailureHandler((err) => {
+                console.error("Błąd w loadActiveUsers (getUsersAndLoginMap):", err);
+                const container = document.getElementById("activeUsers");
+                if(container) container.innerText = "Błąd ładowania aktywnych użytkowników.";
+            })
+            .getUsersAndLoginMap(); // Zakładamy, że ta funkcja zwraca {users: [...], loginMap: {...}}
+      } else {
+        console.warn("google.script.run not available for loadActiveUsers. Simulating.");
+        renderActiveUsers({ 
+            users: [
+                { login: "USER1_SIM", procedure: "Oklejanie", startTimestamp: Date.now() - 100000, loginMask: "Jan K." },
+                { login: "USER2_SIM", procedure: "Anomalia", startTimestamp: Date.now() - 200000, loginMask: "Anna N." }
+            ], 
+            loginMap: { "user1_sim": "Jan Kowalski (Sim)", "user2_sim": "Anna Nowak (Sim)" } 
+        });
+      }
+    }
+    
+    window.onload = () => {
+    // Ładuje listę użytkowników przy pierwszym otwarciu strony
+    loadActiveUsers();
+    
+    loadTopOklejanie(); 
+
+    // DODAJ TEN FRAGMENT
+    // Dodaje globalne nasłuchiwanie na kliknięcia
+    document.addEventListener('click', (event) => {
+        // Sprawdza, czy kliknięty element to <button>
+        if (event.target.tagName === 'BUTTON') {
+            console.log('Kliknięto przycisk, odświeżam listę aktywnych użytkowników.');
+            // Małe opóźnienie, aby dać czas na wykonanie akcji przycisku przed odświeżeniem
+            setTimeout(loadActiveUsers, 100); 
+        }
+    });
+    refreshInterval = setInterval(loadActiveUsers, 60000);
+    // Reszta twojego kodu inicjalizacyjnego
+    const currentYearEl = document.getElementById('currentYear');
+    if(currentYearEl) currentYearEl.textContent = new Date().getFullYear();
+    
+    if(slides.length > 0) {
+      slides[0].style.display = "block";
+      slides[0].classList.add("active");
+    }
+    
+    backToMenu();
+};
+  </script>
 </body>
 </html>
