@@ -326,28 +326,13 @@
       </div>
       <div>
         <label for="procedure" class="block text-sm font-medium text-slate-700 mb-1">Procedura:</label>
-        <select id="procedure" onchange="updateFields('start')" class="mt-1 block w-full">
+        <select id="procedure"
+                onchange="updateFields('start')"
+                class="mt-1 block w-full">
           <option value="">-- wybierz --</option>
-          <option value="S_START">Start​</option>
-          <option value="Oklejanie">Zalando</option>
-          <option value="Oklejanieplus">Testery</option>
-          <option value="Briefing">Briefing</option>
-          <option value="Auto_Labeling">Auto_Labeling</option>
-          <option value="Kartony">Kartony</option>
-          <option value="Drukowanie">Drukowanie</option>
-          <option value="Przerwa">Przerwa</option>
-          <option value="Anomalia">Anomalia</option>
-          <option value="Copacking">Copacking</option>
-          <option value="Delegacja">Delegacja</option>
-          <option value="Simplex">Simplex</option>
-          <option value="Process">Process</option>
-          <option value="S_END">End</option>
         </select>
       </div>
-      <div id="sscc-block" style="display:none;">
-        <label for="sscc" class="block text-sm font-medium text-slate-700 mb-1">SSCC / ID Kontenera:</label>
-        <input type="text" id="sscc" class="mt-1 block w-full">
-      </div>
+      <div id="params-block-start" class="space-y-4"></div>
       <div class="flex flex-row flex-nowrap gap-4 justify-center">
         <button onclick="startProcess()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg shadow-md">Start</button>
         <button onclick="backToMenu()" class="w-full bg-slate-500 hover:bg-slate-600 text-white py-3 px-4 rounded-lg shadow-md">Wróć</button>
@@ -362,22 +347,10 @@
       </div>
       <div>
         <label for="stop_procedure" class="block text-sm font-medium text-slate-700 mb-1">Procedura:</label>
-        <select id="stop_procedure" onchange="updateFields('stop')" class="mt-1 block w-full">
+        <select id="stop_procedure"
+                onchange="updateFields('stop')"
+                class="mt-1 block w-full">
           <option value="">-- wybierz --</option>
-          <option value="S_START">Start</option>
-          <option value="Oklejanie">Zalando</option>
-          <option value="Oklejanieplus">Testery</option>
-          <option value="Briefing">Briefing</option>
-          <option value="Auto_Labeling">Auto_Labeling</option>
-          <option value="Kartony">Kartony</option>
-          <option value="Drukowanie">Drukowanie</option>
-          <option value="Przerwa">Przerwa</option>
-          <option value="Anomalia">Anomalia</option>
-          <option value="Copacking">Copacking</option>
-          <option value="Delegacja">Delegacja</option>
-          <option value="Simplex">Simplex</option>
-          <option value="Process">Process</option>
-          <option value="S_END">End</option>
         </select>
       </div>
       <div id="params-block-stop" class="space-y-4"></div>
@@ -445,6 +418,79 @@
     const slides = document.querySelectorAll(".instruction-slide");
     let isStarting = false;
     let isStopping = false;
+    let proceduresConfig = [];
+
+
+    function loadProceduresConfig() {
+      google.script.run
+        .withSuccessHandler(function(procedures) {
+          proceduresConfig = Array.isArray(procedures) ? procedures : [];
+
+
+          const activeProcedures = proceduresConfig
+            .filter(p => p.active)
+            .sort((a, b) => a.order - b.order);
+
+
+          ['procedure', 'stop_procedure'].forEach(selectId => {
+            const select = document.getElementById(selectId);
+            if (!select) return;
+
+
+            const previousValue = select.value;
+
+
+            select.replaceChildren();
+
+
+            const placeholder = document.createElement('option');
+            placeholder.value = '';
+            placeholder.textContent = '-- wybierz --';
+            select.appendChild(placeholder);
+
+
+            activeProcedures.forEach(proc => {
+              const option = document.createElement('option');
+              option.value = proc.id;
+              option.textContent = proc.name;
+              select.appendChild(option);
+            });
+
+
+            if (activeProcedures.some(p => p.id === previousValue)) {
+              select.value = previousValue;
+            }
+          });
+
+
+          // Synchronizacja istniejącej mapy pól STOP.
+          Object.keys(paramMapStop).forEach(key => {
+            delete paramMapStop[key];
+          });
+
+
+          proceduresConfig.forEach(proc => {
+            paramMapStop[proc.id] = proc.stopParameters || [];
+          });
+
+
+          console.log(
+            'Załadowano procedury:',
+            activeProcedures.length
+          );
+        })
+        .withFailureHandler(function(error) {
+          console.error('Błąd ładowania procedur:', error);
+
+
+          Swal.fire(
+            'Błąd konfiguracji',
+            'Nie udało się pobrać listy procedur. Odśwież stronę.',
+            'error'
+          );
+        })
+        .getProceduresConfig();
+    }
     const paramMapStop = { 
       Oklejanie: ["Ilosc_szt"], 
       Oklejanieplus: ["Ilosc_szt"], 
@@ -613,16 +659,71 @@
       if(stopSect) stopSect.style.display = "none";
       if(statusEl) statusEl.innerText = ""; 
     }
+    function getProcedureConfig(procedureId) {
+      return proceduresConfig.find(p => p.id === procedureId) || null;
+    }
 
+
+    function renderStartFields(procedureId) {
+      const container = document.getElementById('params-block-start');
+      if (!container) return;
+
+
+      container.replaceChildren();
+
+
+      const config = getProcedureConfig(procedureId);
+      if (!config) return;
+
+
+      const fields = Array.isArray(config.startParameters)
+        ? [...config.startParameters]
+        : [];
+
+
+      // Совместимость с колонкой SSCCRequired.
+      if (config.ssccRequired && !fields.includes('SSCC')) {
+        fields.unshift('SSCC');
+      }
+
+
+      [...new Set(fields)].forEach(fieldId => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'mb-3';
+
+
+        const label = document.createElement('label');
+        label.className = 'block text-sm font-medium text-slate-700 mb-1';
+        label.htmlFor = 'start_' + fieldId;
+        label.textContent = fieldId === 'SSCC'
+          ? 'SSCC / ID Kontenera:'
+          : fieldId.replace(/_/g, ' ') + ':';
+
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.id = 'start_' + fieldId;
+        input.dataset.fieldId = fieldId;
+        input.className = 'mt-1 block w-full';
+
+
+        // На этом этапе обязательность задаётся для SSCC.
+        // Для остальных полей добавим отдельные настройки в админке.
+        input.required = fieldId === 'SSCC' && config.ssccRequired;
+
+
+        wrapper.appendChild(label);
+        wrapper.appendChild(input);
+        container.appendChild(wrapper);
+      });
+    }
     function updateFields(context) {
         const procSelect = document.getElementById(context === "start" ? "procedure" : "stop_procedure");
         if (!procSelect) return;
         const proc = procSelect.value;
 
         if (context === "start") {
-            const ssccBlock = document.getElementById("sscc-block");
-            if (ssccBlock) {
-                ssccBlock.style.display = (proc === "Oklejanie" || proc === "Oklejanieplus"|| proc === "Auto_Labeling" || proc === "Simplex" ) ? "block" : "none";
+            renderStartFields(proc);
             }
             return;
         }
@@ -683,7 +784,7 @@
         
         const loginInput = document.getElementById("login");
         const procedureSelect = document.getElementById("procedure");
-        const ssccInput = document.getElementById("sscc");
+        const ssccInput = document.getElementById("start_SSCC");
 
         const login = loginInput ? loginInput.value.trim() : "";
         const procedure = procedureSelect ? procedureSelect.value : "";
@@ -696,7 +797,7 @@
             return;
         }
         
-        if (["Oklejanie","Oklejanieplus", "Auto_Labeling", "Simplex"].includes(procedure) && !sscc) {
+        if (getProcedureConfig(procedure)?.ssccRequired && !sscc) {
             //alert("Skanowanie kodu SSCC jest obowiązkowe!");
             Swal.fire("Brak SSCC", "Skanowanie kodu SSCC jest obowiązkowe!", "error");
             isStarting = false; 
@@ -713,7 +814,7 @@
                 login: login,
                 loginMask: currentMaskedLogin,
                 procedure: procedure,
-                sscc: ["Oklejanie","Oklejanieplus", "Auto_Labeling", "Simplex"].includes(procedure) ? sscc : "",
+                sscc: sscc,
                 start: new Date().toISOString(),
                 startTimestamp: Date.now()
             };
@@ -974,7 +1075,8 @@
     
     window.onload = () => {
     // Ładuje listę użytkowników przy pierwszym otwarciu strony
-    loadActiveUsers();
+    loadProceduresConfig();
+    loadActiveUsers();
     
     loadTopOklejanie(); 
 
