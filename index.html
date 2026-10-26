@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --primary: #0033A0; 
+      --primary-light: #e6ebf5;
+      --success: #10b981;
+      --danger: #ef4444;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-500: #64748b;
+      --slate-800: #1e293b;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: linear-gradient(135deg, #f1f5f9 0%, #cbd5e1 100%);
+      margin: 0; padding: 10px; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    .app-container {
+      width: 100%; max-width: 600px;
+      box-sizing: border-box;
+    }
+
+    /* Karta główna i sekcje */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px); border-radius: 28px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+      padding: 24px; margin-bottom: 20px; border: 1px solid white;
+    }
+
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 24px; padding-bottom: 16px; border-bottom: 2px solid var(--slate-100);
+    }
+
+    .brand-title h1 { font-size: 1.4rem; margin: 0; color: var(--primary); font-weight: 800; }
+
+    /* Menu Główne - Kafelki */
+    .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+    .btn-main {
+      height: 140px; border-radius: 22px; border: none;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px; color: white; font-weight: 700; font-size: 1.2rem; cursor: pointer;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); transition: 0.2s;
+    }
+    .btn-main:active { transform: scale(0.96); }
+    .btn-start { background: linear-gradient(145deg, #10b981, #059669); }
+    .btn-stop { background: linear-gradient(145deg, #ef4444, #dc2626); }
+
+    /* Formularze */
+    .input-group { margin-bottom: 18px; }
+    label { display: block; font-weight: 700; margin-bottom: 6px; font-size: 0.85rem; color: var(--slate-500); text-transform: uppercase; }
+    input, select {
+      width: 100%; height: 58px; background: var(--slate-50);
+      border: 2px solid var(--slate-200); border-radius: 16px; padding: 0 18px; font-size: 1.1rem; box-sizing: border-box;
+    }
+    input:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 0 0 4px var(--primary-light); }
+
+    /* Sekcje START/STOP jako karty */
+    .section { display: none; animation: slideUp 0.3s ease-out; }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Boxy na dole */
+    .bottom-cards { display: grid; grid-template-columns: 1fr; gap: 16px; margin-top: 20px; }
+    @media (min-width: 500px) { .bottom-cards { grid-template-columns: 1fr 1fr; } }
+    
+    .card-info { background: white; padding: 16px; border-radius: 20px; border: 1px solid var(--slate-200); box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .card-title { font-size: 0.8rem; font-weight: 800; color: var(--primary); margin-bottom: 10px; text-transform: uppercase; }
+
+    /* TOP 3 Styles */
+    .top-item { padding: 8px; border-radius: 10px; margin-bottom: 6px; font-size: 0.85rem; display: flex; align-items: center; gap: 8px; border: 1px solid transparent; }
+    .gold { background: #fffbeb; color: #854d0e; border-color: #facc15; }
+    .silver { background: #f8fafc; color: #475569; border-color: #cbd5e1; }
+    .bronze { background: #fff7ed; color: #c2410c; border-color: #fdba74; }
+
+    /* Aktywni Użytkownicy */
+    .active-users-card { background: var(--slate-100); border-radius: 22px; padding: 20px; }
+    .user-item { background: white; margin-bottom: 8px; padding: 12px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--slate-200); }
+    .timer-badge { font-family: monospace; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.8rem; }
+    .timer-normal { background: var(--slate-100); color: var(--slate-800); }
+    .timer-warning { background: #fef3c7; color: #92400e; }
+    .timer-danger { background: #fee2e2; color: #b91c1c; }
+    
+    /* Instrukcja */
+    .instruction-slide { display: none; font-size: 0.8rem; min-height: 60px; color: var(--slate-800); }
+    .instruction-slide.active { display: block; }
+    .btn-nav { background: var(--primary); color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; }
+
+    .status-msg { font-size: 0.9rem; font-weight: 700; margin: 10px 0; text-align: center; color: var(--primary); }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="glass-card">
+      <header>
+        <div class="brand-title">
+          <h1>FM LOGISTIC</h1>
+          <span style="font-size: 0.7rem; color: #10b981; font-weight: 800;">● SYSTEM ONLINE</span>
+        </div>
+        <button onclick="confirmClearSessions()" style="background:none; border:none; cursor:pointer; font-size: 1.2rem;">⚙️</button>
+      </header>
+
+      <div id="status" class="status-msg"></div>
+
+      <div id="mainMenu" class="menu-grid">
+        <button class="btn-main btn-start" onclick="showSection('start')">
+          <span style="font-size: 2.5rem;">📥</span> START
+        </button>
+        <button class="btn-main btn-stop" onclick="showSection('stop')">
+          <span style="font-size: 2.5rem;">📤</span> STOP
+        </button>
+      </div>
+
+      <div id="startSection" class="section">
+        <h2 style="color:var(--success); font-size: 1.2rem; margin-bottom: 20px;">▶ ROZPOCZNIJ PRACĘ</h2>
+        <div class="input-group">
+          <label>Zeskanuj Identyfikator</label>
+          <input type="text" id="login" placeholder="..." onfocus="loadActiveUsers()">
+        </div>
+        <div class="input-group">
+          <label>Wybierz Procedurę</label>
+          <select id="procedure" onchange="updateFields('start')">
+            <option value="">-- wybierz --</option>
+            <option value="Oklejanie">Oklejanie</option>
+            <option value="Foliowanie">Foliowanie</option>
+            <option value="Kontener/Bulkzal">Kontener/Bulkzal</option>
+            <option value="Instrukcje">Instrukcje</option>
+            <option value="Przerwa">Przerwa</option>
+            <option value="Anomalia">Anomalia</option>
+            <option value="Copacking">Copacking</option>
+            <option value="Delegacja">Delegacja</option>
+          </select>
+        </div>
+        <div id="sscc-block" style="display:none;" class="input-group">
+          <label>Numer SSCC / Palety</label>
+          <input type="text" id="sscc" placeholder="Skanuj kod...">
+        </div>
+        <div class="menu-grid" style="grid-template-columns: 2fr 1fr;">
+          <button onclick="startProcess()" class="btn-main btn-start" style="height: 60px;">POTWIERDŹ</button>
+          <button onclick="backToMenu()" class="btn-main" style="height: 60px; background: var(--slate-800);">WRÓĆ</button>
+        </div>
+      </div>
+
+      <div id="stopSection" class="section">
+        <h2 style="color:var(--danger); font-size: 1.2rem; margin-bottom: 20px;">■ ZAKOŃCZ PRACĘ</h2>
+        <div class="input-group">
+          <label>Zeskanuj Identyfikator</label>
+          <input type="text" id="stop_login" placeholder="..." onfocus="loadActiveUsers()">
+        </div>
+        <div class="input-group">
+          <label>Wybierz Procedurę</label>
+          <select id="stop_procedure" onchange="updateFields('stop')">
+            <option value="">-- wybierz --</option>
+            <option value="Oklejanie">Oklejanie</option>
+            <option value="Foliowanie">Foliowanie</option>
+            <option value="Kontener/Bulkzal">Kontener/Bulkzal</option>
+            <option value="Instrukcje">Instrukcje</option>
+            <option value="Przerwa">Przerwa</option>
+            <option value="Anomalia">Anomalia</option>
+            <option value="Copacking">Copacking</option>
+            <option value="Delegacja">Delegacja</option>
+          </select>
+        </div>
+        <div id="params-block-stop"></div>
+        <div class="menu-grid" style="grid-template-columns: 2fr 1fr;">
+          <button onclick="finishProcess()" class="btn-main btn-stop" style="height: 60px;">ZATWIERDŹ STOP</button>
+          <button onclick="backToMenu()" class="btn-main" style="height: 60px; background: var(--slate-800);">WRÓĆ</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-cards">
+      <div class="card-info">
+        <div class="card-title">Instrukcja</div>
+        <div id="slides-container">
+          <div class="instruction-slide active"><b>1.</b> Wybierz START lub STOP na kafelkach powyżej.</div>
+          <div class="instruction-slide"><b>2.</b> Zbliż kartę do czytnika, aby wpisać ID.</div>
+          <div class="instruction-slide"><b>3.</b> Wypełnij dane i kliknij zielony/czerwony przycisk.</div>
+        </div>
+        <div style="margin-top:12px; display:flex; gap:10px; justify-content:center;">
+          <button class="btn-nav" onclick="changeSlide(-1)">←</button>
+          <button class="btn-nav" onclick="changeSlide(1)">→</button>
+        </div>
+      </div>
+
+      <div class="card-info">
+        <div class="card-title">TOP 3 Oklejanie</div>
+        <div id="topOklejanie">Ładowanie...</div>
+      </div>
+    </div>
+
+    <div class="active-users-card" style="margin-top: 20px;">
+      <h3 style="font-size:0.8rem; margin-top:0; margin-bottom:12px; color:var(--slate-500); font-weight:800; text-transform:uppercase;">Aktualnie pracują</h3>
+      <div id="activeUsers">Pobieranie danych...</div>
+    </div>
+  </div>
+
+  <footer style="margin-top:24px; color:var(--slate-500); font-size:0.7rem; text-align:center; padding-bottom:30px;">
+    &copy; 2026 FM Logistic - System Rejestracji Procesów
+  </footer>
+  <script>
+        // --- Zmienne globalne JS ---
+        let currentSection = 'mainMenu';
+        let slideIndex = 0;
+        let servicesConfig = {}; // Zmienna do przechowywania konfiguracji
+
+        const instructionSlides = document.querySelectorAll('.instruction-slide');
+        
+
+        function displayTopOklejanie(data) {
+          const container = document.getElementById('topOklejanie');
+          container.innerHTML = '';
+          if (data.length === 0) {
+            container.textContent = "Brak danych z dziś.";
+            return;
+          }
+          
+          data.forEach((item, index) => {
+            const p = document.createElement('p');
+            p.textContent = `${index + 1}. ${item.user} - ${Math.round(item.duration / 60)} min`;
+            container.appendChild(p);
+          });
+        }
+        
+        let refreshInterval;
+
+        function initializeRefresh() {
+          // Funkcja, która odświeża statystyki
+          const refreshStats = () => {
+            google.script.run
+              .withSuccessHandler(onTopWorkersLoaded)
+              .withFailureHandler(onError)
+              .getWorkmodeStatsForMonth("A_FLO");
+          };
+
+          // Ustaw interwał odświeżania na 12 godzin (12 * 60 * 60 * 1000 ms)
+          // Przykładowo dla 2 razy dziennie. Możesz dostosować, np. o 6 rano i 18 wieczorem.
+          refreshInterval = setInterval(refreshStats, 12 * 60 * 60 * 1000);
+        }
+        function onTopWorkersLoaded(workers) {
+          const container = document.getElementById('topOklejanie'); // Poprawne ID z HTML
+          if (!container) {
+              console.error("Element z ID 'topOklejanie' nie został znaleziony.");
+              return;
+          }
+          
+          container.innerHTML = ''; // Wyczyść wcześniejsze dane
+          
+          if (workers.length === 0) {
+              container.innerHTML = '<p class="text-gray-500">Brak danych dla tego miesiąca.</p>';
+              return;
+          }
+
+          workers.forEach((worker, index) => {
+              const workerDiv = document.createElement('div');
+              const rankColors = ['bg-yellow-300', 'bg-gray-300', 'bg-yellow-800'];
+              const medalEmoji = ['🥇', '🥈', '🥉'];
+              workerDiv.className = `p-3 rounded-lg flex items-center shadow-md ${rankColors[index] || 'bg-gray-200'}`;
+              workerDiv.innerHTML = `
+                  <div class="text-2xl mr-4">${medalEmoji[index] || ''}</div>
+                  <div class="flex-grow">
+                      <p class="font-bold text-lg">${worker.user}</p>
+                      <p class="text-sm">Wykonane: <span class="font-semibold">${worker.qty} sztuk</span></p>
+                  </div>
+              `;
+              container.appendChild(workerDiv);
+          });
+      }
+
+
+
+        function showSection(sectionId) {
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(sec => sec.style.display = 'none');
+
+            document.getElementById('mainMenu').style.display = 'none';
+
+            const sectionToShow = document.getElementById(sectionId);
+            if (sectionToShow) {
+                sectionToShow.style.display = 'block';
+            }
+        }
+
+        function backToMenu() {
+            document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+            document.getElementById('mainMenu').style.display = 'flex';
+        }
+
+        
+        
+
+        
+        
+        function updateStatus(message, isSuccess = true) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = isSuccess ? 'text-center text-green-600 font-semibold' : 'text-center text-red-600 font-semibold';
+            setTimeout(() => statusDiv.textContent = '', 5000);
+        }
+
+        function updateFields(section) {
+            const procedureSelect = document.getElementById(section === 'start' ? 'procedure' : 'stop_procedure');
+            const paramsBlock = document.getElementById(section === 'start' ? 'params-block-start' : 'params-block-stop');
+            const selectedProcedure = procedureSelect.value;
+            paramsBlock.innerHTML = '';
+
+            const params = servicesConfig[selectedProcedure]?.[section === 'start' ? 'startParameters' : 'stopParameters'];
+
+            if (params && params.length > 0) {
+                params.forEach(param => {
+                    const label = document.createElement('label');
+                    label.textContent = `${param}:`;
+                    label.className = "block text-sm font-medium text-slate-700 mb-1";
+
+                    const input = document.createElement('input');
+                    input.type = "text";
+                    input.id = param;
+                    input.className = "mt-1 block w-full p-2.5 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500";
+                    input.placeholder = `Wprowadź ${param}`;
+
+                    const div = document.createElement('div');
+                    div.append(label, input);
+                    paramsBlock.appendChild(div);
+                });
+            }
+        }
+
+        function loadActiveUsers() {
+            google.script.run
+                .withSuccessHandler(displayActiveUsers)
+                .withFailureHandler(error => {
+                    console.error("Błąd ładowania aktywnych użytkowników:", error);
+                    document.getElementById('activeUsers').textContent = "Błąd: Nie można załadować listy.";
+                })
+                .getActiveSessions();
+        }
+
+        function displayActiveUsers(sessions) {
+            const container = document.getElementById('activeUsers');
+            container.innerHTML = '';
+            if (sessions.length === 0) {
+                container.textContent = "Brak aktywnych procesów.";
+                return;
+            }
+            sessions.forEach(session => {
+                const card = document.createElement('div');
+                card.className = "user-card p-4 rounded-lg shadow-sm";
+                card.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <span class="text-xl">🧑‍🏭</span>
+                        <div>
+                            <p class="font-semibold text-lg text-blue-900">${session.loginMask}</p>
+                            <p class="text-sm text-slate-700">${session.procedure}</p>
+                            <p class="text-xs text-slate-500">od: ${new Date(session.startTimestamp).toLocaleString()}</p>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+        
+        // --- Funkcje procesów ---
+
+        function startProcess() {
+            const login = document.getElementById('login').value.trim();
+            const procedure = document.getElementById('procedure').value.trim();
+            
+            if (!login || !procedure) {
+                updateStatus("Login i procedura są wymagane.", false);
+                return;
+            }
+
+            // Upewnij się, że zbierasz dynamiczne parametry startu
+            const startParams = getDynamicParams('start');
+
+            const sessionData = {
+                login: login,
+                loginMask: null,
+                procedure: procedure,
+                start: new Date().toISOString(),
+                startTimestamp: new Date().getTime(),
+                ...startParams // Dodaj dynamiczne parametry startu
+            };
+
+            google.script.run
+                .withSuccessHandler(response => {
+                    if (response.success) {
+                        updateStatus("Proces " + procedure + " rozpoczęty pomyślnie.");
+                        clearInputs();
+                        backToMenu();
+                        loadActiveUsers();
+                    } else {
+                        updateStatus("Błąd: " + response.message, false);
+                    }
+                })
+                .withFailureHandler(error => {
+                    updateStatus("Błąd serwera: " + error.message, false);
+                })
+                .startProcess(sessionData);
+        }
+        function getDynamicParams(section) {
+          const paramsBlock = document.getElementById(section === 'start' ? 'params-block-start' : 'params-block-stop');
+          const inputs = paramsBlock.querySelectorAll('input');
+          const params = {};
+          inputs.forEach(input => {
+            // Upewnij się, że wartość jest traktowana jako ciąg znaków i jest przycinana
+            params[input.id] = input.value ? String(input.value).trim() : '';
+          });
+          return params;
+        }
+        function finishProcess() {
+            const login = document.getElementById('stop_login').value.trim();
+            const procedure = document.getElementById('stop_procedure').value.trim();
+            
+            if (!login || !procedure) {
+                updateStatus("Login i procedura są wymagane.", false);
+                return;
+            }
+
+            google.script.run
+                .withSuccessHandler(sessions => {
+                    handleSessions(sessions, login, procedure);
+                })
+                .withFailureHandler(error => {
+                    updateStatus("Błąd serwera: " + error.message, false);
+                })
+                .getActiveSessions();
+        }
+
+        function handleSessions(sessions, login, procedure) {
+            const match = sessions.find(s => 
+                String(s.login).trim().toLowerCase() === String(login).trim().toLowerCase() && 
+                String(s.procedure).trim().toLowerCase() === String(procedure).trim().toLowerCase()
+            );
+
+            if (!match) {
+                updateStatus("Nie znaleziono pasującej, aktywnej sesji.", false);
+                return;
+            }
+
+            const stopParams = getDynamicParams('stop');
+
+            const stopData = {
+                login: match.login,
+                loginMask: match.loginMask,
+                procedure: match.procedure,
+                start: match.start,
+                stop: new Date().toISOString(),
+                duration: Math.round((new Date().getTime() - match.startTimestamp) / 1000),
+                sscc: match.sscc,
+                workmode: servicesConfig[procedure]?.workmode || "",
+                ...stopParams // Dodaj dynamiczne parametry stopu
+            };
+
+            google.script.run
+                .withSuccessHandler(response => {
+                    if (response.success) {
+                        updateStatus("Proces zakończony pomyślnie.");
+                        clearInputs();
+                        backToMenu();
+                        loadActiveUsers();
+                    } else {
+                        updateStatus("Błąd: " + response.message, false);
+                    }
+                })
+                .withFailureHandler(error => {
+                    updateStatus("Błąd serwera: " + error.message, false);
+                })
+                .finishProcess(stopData);
+        }
+        
+        
+
+        function clearInputs() {
+            document.getElementById('login').value = '';
+            document.getElementById('procedure').value = '';
+            document.getElementById('stop_login').value = '';
+            document.getElementById('stop_procedure').value = '';
+            document.getElementById('params-block-start').innerHTML = '';
+            document.getElementById('params-block-stop').innerHTML = '';
+        }
+        
+        // --- Funkcje czyszczenia ---
+        
+        function confirmClearSessions() {
+          if (confirm("Czy na pewno chcesz usunąć wszystkie aktywne sesje?")) {
+            google.script.run
+              .withSuccessHandler(response => {
+                updateStatus(response.message, response.success);
+                loadActiveUsers();
+              })
+              .withFailureHandler(error => {
+                updateStatus("Błąd: " + error.message, false);
+              })
+              .clearAllActiveSessions();
+          }
+        }
+        
+        // --- Funkcje instrukcji ---
+        
+        function changeSlide(n) {
+            instructionSlides[slideIndex].classList.remove('active');
+            slideIndex += n;
+            if (slideIndex >= instructionSlides.length) {
+                slideIndex = 0;
+            }
+            if (slideIndex < 0) {
+                slideIndex = instructionSlides.length - 1;
+            }
+            instructionSlides[slideIndex].classList.add('active');
+        }
+
+        // --- Inicjalizacja ---
+        
+        function initializeApp() {
+            loadServicesConfig();
+            loadActiveUsers();
+            loadTopWorkers();
+        }
+        function loadTopWorkers() {
+            google.script.run
+                .withSuccessHandler(onTopWorkersLoaded)
+                .withFailureHandler(error => {
+                    console.error("Błąd ładowania statystyk:", error);
+                    document.getElementById('top-workers-container').innerHTML = '<p class="text-gray-500">Błąd: Nie można załadować danych.</p>';
+                })
+                .getWorkmodeStatsForMonth("A_FLO");
+        }
+        function loadServicesConfig() {
+            google.script.run
+                .withSuccessHandler(config => {
+                    servicesConfig = config;
+                    populateProcedureSelects();
+                })
+                .withFailureHandler(onError)
+                .getServicesConfig();
+        }
+        function onError(error) {
+            console.error("Błąd serwera: ", error);
+            showMessage("Wystąpił błąd: " + error.message, 'error');
+        }
+        function populateProcedureSelects() {
+            const procedureSelect = document.getElementById('procedure');
+            const stopProcedureSelect = document.getElementById('stop_procedure');
+            
+            for (const procedure in servicesConfig) {
+                const optionStart = document.createElement('option');
+                optionStart.value = procedure;
+                optionStart.textContent = procedure;
+                procedureSelect.appendChild(optionStart);
+                
+                const optionStop = document.createElement('option');
+                optionStop.value = procedure;
+                optionStop.textContent = procedure;
+                stopProcedureSelect.appendChild(optionStop);
+            }
+        }
+
+        window.onload = initializeApp;
+          
+         
+    </script>
+</body>
+</html>
