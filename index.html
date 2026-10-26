@@ -724,7 +724,7 @@
 
         if (context === "start") {
             renderStartFields(proc);
-            }
+            
             return;
         }
 
@@ -818,7 +818,16 @@
                 start: new Date().toISOString(),
                 startTimestamp: Date.now()
             };
+            document.querySelectorAll(
+              '#params-block-start [data-field-id]'
+            ).forEach(input => {
+              const fieldId = input.dataset.fieldId;
 
+
+              if (fieldId !== 'SSCC') {
+                data[fieldId] = input.value.trim();
+              }
+            });
             google.script.run
                 .withSuccessHandler(() => {
                     Swal.fire({
@@ -831,7 +840,7 @@
                     if (loginInput) loginInput.value = "";
                     if (procedureSelect) procedureSelect.value = "";
                     if (ssccInput) ssccInput.value = "";
-                    document.getElementById("sscc-block").style.display = "none";
+                    document.getElementById('params-block-start').replaceChildren();
                     backToMenu();
                     loadActiveUsers();
                     isStarting = false; // Reset blokady dopiero po sukcesie
