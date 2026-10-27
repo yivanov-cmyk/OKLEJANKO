@@ -649,7 +649,49 @@ function saveProcessData(data) {
     planQty,                              // L: QTY
     data.login || ""                      // M: LOGIN_RAW
   ];
+  const editableColumns = {
+    F: 5,
+    I: 8,
+    K: 10,
+    L: 11
+  };
 
+
+  const parameterGroups = {};
+
+
+  getParametersConfig().forEach(param => {
+    const column = String(param.targetColumn || '')
+      .trim()
+      .toUpperCase();
+
+
+    if (
+      !param.active ||
+      !parameterIds.includes(param.id) ||
+      !(column in editableColumns)
+    ) {
+      return;
+    }
+
+
+    const value = String(data[param.id] ?? '').trim();
+    if (!value) return;
+
+
+    if (!parameterGroups[column]) {
+      parameterGroups[column] = [];
+    }
+
+
+    parameterGroups[column].push(value);
+  });
+
+
+  Object.keys(parameterGroups).forEach(column => {
+    const values = [...new Set(parameterGroups[column])];
+    rowData[editableColumns[column]] = values.join(' | ');
+  });
   const nextRow = sheet.getLastRow() + 1;
   const f1 = `=IF(J${nextRow}="S_PRW";IF(G${nextRow}>TIME(0;25;0);"TAK");"")`;
   const f2 = `=ROUND(VALUE(G${nextRow})*24;2)`;
