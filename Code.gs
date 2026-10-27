@@ -748,3 +748,36 @@ function getWorkMode(proc) {
 
   return procedure ? procedure.workmode : procedureId;
 }
+function getUsersConfig(adminToken) {
+  requireAdminSession_(adminToken);
+
+
+  const sheet = SpreadsheetApp.getActiveSpreadsheet()
+    .getSheetByName('Login');
+
+
+  if (!sheet) {
+    throw new Error('Nie znaleziono arkusza Login.');
+  }
+
+
+  const lastRow = sheet.getLastRow();
+
+
+  if (lastRow < 2) {
+    return [];
+  }
+
+
+  const rows = sheet.getRange(2, 1, lastRow - 1, 2)
+    .getDisplayValues();
+
+
+  return rows
+    .map((row, index) => ({
+      rowNumber: index + 2,
+      login: String(row[0] || '').trim(),
+      loginMask: String(row[1] || '').trim()
+    }))
+    .filter(user => user.login !== '');
+}
