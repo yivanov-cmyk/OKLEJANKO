@@ -484,9 +484,21 @@ function removeFromActive(login, procedure) {
   }
 }
 
-function clearAllActiveSessions() {
-  PropertiesService.getScriptProperties().deleteProperty("activeSessions");
-  Logger.log("Wszystkie aktywne sesje zostały wyczyszczone.");
+function clearAllActiveSessions(adminToken) {
+  requireAdminSession_(adminToken);
+
+
+  PropertiesService.getScriptProperties()
+    .deleteProperty('activeSessions');
+
+
+  Logger.log('Wszystkie aktywne sesje zostały wyczyszczone.');
+
+
+  return {
+    success: true,
+    message: 'Wszystkie aktywne sesje zostały wyczyszczone.'
+  };
 }
 function fetchBigQueryData(sscc) {
   const PROJECT_ID = 'fml-prod-pl-bo';
