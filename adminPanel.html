@@ -834,10 +834,10 @@
           container.appendChild(item);
       });
   }
-  window.onload = () => {
-      loadData();
-      initializeRefresh();
-};
+  document.addEventListener('DOMContentLoaded', function() {
+    loadData();
+    initializeRefresh();
+});
 </script>
 
 </body>
