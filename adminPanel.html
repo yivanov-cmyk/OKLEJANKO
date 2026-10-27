@@ -49,7 +49,42 @@
         <div id="active-users-container" class="space-y-4">
             </div>
     </div>
-    
+    <div id="user-management"
+        class="bg-white p-6 rounded-lg shadow-lg mb-6 hidden">
+
+
+        <h2 class="text-xl font-semibold mb-4 text-gray-700">
+            Zarządzanie Użytkownikami
+        </h2>
+
+
+        <div class="flex flex-wrap gap-3 mb-5">
+            <input id="user-search"
+                  type="text"
+                  placeholder="Szukaj po loginie lub masce..."
+                  class="flex-1 min-w-48 p-2 border rounded-lg">
+
+
+            <button id="add-user-btn"
+                    class="px-4 py-2 bg-blue-500 text-white rounded-lg">
+                Dodaj użytkownika
+            </button>
+        </div>
+
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="border-b">
+                        <th class="p-3">Login</th>
+                        <th class="p-3">Maska loginu</th>
+                        <th class="p-3">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody id="users-config-container"></tbody>
+            </table>
+        </div>
+    </div>
     <div id="service-management" class="bg-white p-6 rounded-lg shadow-lg mb-6">
         <h2 class="text-xl font-semibold mb-4 text-gray-700">Zarządzanie Procedurami</h2>
         
@@ -106,6 +141,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const sections = {
             users: document.getElementById('active-users-container').parentElement,
+            user-management: document.getElementById('user-management').parentElement,
             procedures: document.getElementById('service-management'),
             parameters: document.getElementById('parameters-management'),
             workers: document.getElementById('top-workers-container').parentElement,
