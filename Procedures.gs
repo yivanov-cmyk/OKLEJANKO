@@ -121,3 +121,200 @@ function initializeProceduresConfig() {
 
   return 'Utworzono konfigurację ' + rows.length + ' procedur.';
 }
+function createAdminSession(password) {
+  const expected = PropertiesService
+    .getScriptProperties()
+    .getProperty('ADMIN_PASSWORD');
+
+
+  if (!expected || String(password) !== expected) {
+    throw new Error('Nieprawidłowe hasło administratora.');
+  }
+
+
+  const token = Utilities.getUuid() + Utilities.getUuid();
+
+
+  CacheService.getScriptCache().put(
+    'admin_' + token,
+    'authorized',
+    1800
+  );
+
+
+  return token;
+}
+
+
+function requireAdminSession_(token) {
+  if (typeof token !== 'string' || !token) {
+    throw new Error('Brak autoryzacji administratora.');
+  }
+
+
+  const authorized = CacheService
+    .getScriptCache()
+    .get('admin_' + token);
+
+
+  if (authorized !== 'authorized') {
+    throw new Error('Sesja administratora wygasła.');
+  }
+}
+function saveProcedures(procedures, adminToken) {
+  requireAdminSession_(adminToken);
+
+
+  if (!Array.isArray(procedures) || !procedures.length) {
+    throw new Error('Lista procedur jest pusta.');
+  }
+
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+
+
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(PROCEDURES_SHEET);
+
+
+    if (!sheet) {
+      throw new Error('Brak arkusza ProceduresConfig.');
+    }
+
+
+    const existing = getProceduresConfig();
+    const existingIds = new Set(existing.map(p => p.id));
+    const receivedIds = new Set();
+
+
+    const clean = procedures.map((p, index) => {
+      const id = String(p.id || '').trim();
+      const name = String(p.name || '').trim();
+      const workmode = String(p.workmode || '').trim();
+
+
+      if (!/^[A-Za-z0-9_]{1,60}$/.test(id)) {
+        throw new Error('Nieprawidłowe ID: ' + id);
+      }
+
+
+      if (!name || name.length > 100) {
+        throw new Error('Nieprawidłowa nazwa: ' + id);
+      }
+
+
+      if (!/^[A-Za-z0-9_]{1,60}$/.test(workmode)) {
+        throw new Error('Nieprawidłowy Workmode: ' + id);
+      }
+
+
+      if (receivedIds.has(id)) {
+        throw new Error('Duplikat ID: ' + id);
+      }
+      receivedIds.add(id);
+
+
+      const parseFields = value => {
+        if (!Array.isArray(value)) {
+          throw new Error('Nieprawidłowe parametry: ' + id);
+        }
+
+
+        const fields = value.map(v => String(v).trim());
+
+
+        if (fields.some(v => !/^[A-Za-z0-9_]{1,60}$/.test(v))) {
+          throw new Error('Nieprawidłowa nazwa parametru: ' + id);
+        }
+
+
+        return [...new Set(fields)];
+      };
+
+
+      const ssccRequired = p.ssccRequired === true;
+      const startParameters = parseFields(p.startParameters || []);
+      const stopParameters = parseFields(p.stopParameters || []);
+
+
+      if (ssccRequired && !startParameters.includes('SSCC')) {
+        startParameters.unshift('SSCC');
+      }
+
+
+      return {
+        id,
+        name,
+        workmode,
+        active: p.active === true,
+        ssccRequired,
+        startParameters,
+        stopParameters,
+        order: index + 1
+      };
+    });
+
+
+    // Nie pozwalamy przypadkowo usunąć istniejących ID.
+    const missing = [...existingIds].filter(id => !receivedIds.has(id));
+
+
+    if (missing.length) {
+      throw new Error(
+        'Brakuje istniejących procedur: ' + missing.join(', ')
+      );
+    }
+
+
+    // Kopia konfiguracji przed zapisem.
+    const backupName = 'ProceduresBackup_' +
+      Utilities.formatDate(
+        new Date(),
+        Session.getScriptTimeZone(),
+        'yyyyMMdd_HHmmss'
+      );
+
+
+    const backup = sheet.copyTo(ss);
+    backup.setName(backupName);
+    backup.hideSheet();
+
+
+    const rows = clean.map(p => [
+      p.id,
+      p.name,
+      p.workmode,
+      p.active,
+      p.ssccRequired,
+      JSON.stringify(p.startParameters),
+      JSON.stringify(p.stopParameters),
+      p.order
+    ]);
+
+
+    // Nadpisujemy tylko konfigurację, nie arkusze procesów.
+    const oldRows = Math.max(sheet.getLastRow() - 1, 0);
+
+
+    if (oldRows > 0) {
+      sheet.getRange(2, 1, oldRows, 8).clearContent();
+    }
+
+
+    sheet.getRange(2, 1, rows.length, 8).setValues(rows);
+    SpreadsheetApp.flush();
+
+
+    return {
+      success: true,
+      message: 'Zapisano ' + rows.length + ' procedur.',
+      count: rows.length
+    };
+
+
+  } finally {
+    lock.releaseLock();
+  }
+}
