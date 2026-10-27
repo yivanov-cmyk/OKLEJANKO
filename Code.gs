@@ -693,6 +693,7 @@ function saveProcessData(data) {
     rowData[editableColumns[column]] = values.join(' | ');
   });
   const nextRow = sheet.getLastRow() + 1;
+  sheet.getRange(nextRow, 1).setNumberFormat('@');
   const f1 = `=IF(J${nextRow}="S_PRW";IF(G${nextRow}>TIME(0;25;0);"TAK");"")`;
   const f2 = `=ROUND(VALUE(G${nextRow})*24;2)`;
   const f3 = `=IF(AND(A${nextRow}<>"";L${nextRow}<>"");IF(SUMIF(A:A;A${nextRow};H:H)=L${nextRow};"OK";"RÓŻNICA");"")`;
