@@ -600,9 +600,16 @@ function saveProcessData(data) {
       refBo = data["Referencja"] || "";
       planQty = data["Ilosc_szt"] || "";
   }
+  let columnAValue = data.sscc || data.procedure;
 
+
+  if (data.procedure === 'Anomalia') {
+    columnAValue = data.Komentarz || data.procedure;
+  } else if (data.procedure === 'Delegacja') {
+    columnAValue = data.Klient || data.procedure;
+  }
   const rowData = [
-    data.sscc || data.procedure,          // A: SSCC
+    columnAValue,          // A: SSCC
     data.loginMask || data.login || "",   // B: PRACOWNIK
     Utilities.formatDate(start, tz, "yyyy-MM-dd"), // C: DATA
     Utilities.formatDate(start, tz, "HH:mm:ss"),   // D: START
