@@ -491,6 +491,58 @@
         })
         .createAdminSession(password);
     });
+    document.getElementById('save-parameters-btn')
+      .addEventListener('click', () => {
+        const parameters = [...document.querySelectorAll('.parameter-item')]
+          .map(item => ({
+            id: item.querySelector('.param-id').value.trim(),
+            name: item.querySelector('.param-name').value.trim(),
+            type: item.querySelector('.param-type').value,
+            required: item.querySelector('.param-required').checked,
+            options: item.querySelector('.param-options').value
+              .split(',')
+              .map(v => v.trim())
+              .filter(Boolean),
+            targetColumn: item.querySelector('.param-column').value.trim(),
+            active: item.querySelector('.param-active').checked
+          }));
+
+
+        if (!parameters.length) {
+          showMessage('Brak parametrów do zapisania.', 'error');
+          return;
+        }
+
+
+        const password = prompt('Hasło administratora:');
+        if (password === null) return;
+
+
+        const btn = document.getElementById('save-parameters-btn');
+        const originalText = btn.textContent;
+        showLoadingIndicator(btn);
+
+
+        google.script.run
+          .withSuccessHandler(token => {
+            google.script.run
+              .withSuccessHandler(response => {
+                showMessage(response.message, 'success');
+                hideLoadingIndicator(btn, originalText);
+                loadData();
+              })
+              .withFailureHandler(error => {
+                showMessage(error.message, 'error');
+                hideLoadingIndicator(btn, originalText);
+              })
+              .saveParameters(parameters, token);
+          })
+          .withFailureHandler(error => {
+            showMessage(error.message, 'error');
+            hideLoadingIndicator(btn, originalText);
+          })
+          .createAdminSession(password);
+      });
   function renderParameters() {
       const container = document.getElementById('parameters-container');
       container.innerHTML = '';
