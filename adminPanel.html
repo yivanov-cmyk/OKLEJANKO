@@ -143,7 +143,23 @@
             .withSuccessHandler(onActiveUsersLoaded)
             .withFailureHandler(onError)
             .getActiveSessions(); 
-        
+        google.script.run
+            .withSuccessHandler(function(params) {
+                allParameters = Array.isArray(params) ? params : [];
+                console.log(
+                    'Załadowano parametry:',
+                    allParameters.length
+                );
+                renderParameters();
+            })
+            .withFailureHandler(function(error) {
+                console.error('Błąd ładowania parametrów:', error);
+                showMessage(
+                    'Nie udało się pobrać parametrów.',
+                    'error'
+                );
+            })
+            .getParametersConfig();
      
         
              
@@ -475,7 +491,31 @@
         })
         .createAdminSession(password);
     });
+  function renderParameters() {
+    const container = document.getElementById('parameters-container');
+    container.innerHTML = '';
 
+
+    allParameters.forEach(param => {
+        const item = document.createElement('div');
+        item.className = 'p-3 bg-gray-50 border rounded-lg';
+
+
+        const name = document.createElement('strong');
+        name.textContent = param.name || param.id;
+
+
+        const details = document.createElement('div');
+        details.className = 'text-sm text-gray-600 mt-1';
+        details.textContent =
+            ID: ${param.id} | Typ: ${param.type} | Kolumna: ${param.targetColumn || 'Brak'};
+
+
+        item.appendChild(name);
+        item.appendChild(details);
+        container.appendChild(item);
+    });
+}  
   window.onload = () => {
       loadData();
       initializeRefresh();
