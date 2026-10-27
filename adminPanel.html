@@ -176,12 +176,12 @@
                 if (button.dataset.tab === 'user-management') {
                     loadUsersConfig();
                 }
-            
             });
+        });
 
 
         showTab('users');
-    });
+        });
     function loadUsersConfig() {
         const password = prompt('Hasło administratora:');
         if (password === null) return;
