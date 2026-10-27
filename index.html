@@ -784,33 +784,37 @@
             label.htmlFor = `${context}_${id}`;
             fieldContainer.appendChild(label);
 
-            if (id === "Komentarz" && proc === "Anomolia") {
+            const config = getParameterConfig(id);
+
+
+            if (config?.type === "select") {
                 const select = document.createElement("select");
-                select.id = `${context}_${id}`;
-                select.className = "mt-1 block w-full"; 
-                ["ZWOZENIE", "PREPARACJA", "SPRZATANIE"].forEach(txt => {
+                select.id = ${context}_${id};
+                select.className = "mt-1 block w-full";
+                select.required = config.required;
+
+
+                const placeholder = document.createElement("option");
+                placeholder.value = "";
+                placeholder.textContent = "-- wybierz --";
+                select.appendChild(placeholder);
+
+
+                (config.options || []).forEach(value => {
                     const option = document.createElement("option");
-                    option.value = txt;
-                    option.text = txt;
+                    option.value = value;
+                    option.textContent = value;
                     select.appendChild(option);
                 });
+
+
                 fieldContainer.appendChild(select);
-            } else if (id === "Klient" && proc === "Delegacja") {
-                const select = document.createElement("select");
-                select.id = `${context}_${id}`;
-                select.className = "mt-1 block w-full"; 
-                ["Lindt Copacking", "Mattel", "Foodcare", "Lindt","Yves Rocher","Kontrola st.","HUB"].forEach(txt => {
-                    const option = document.createElement("option");
-                    option.value = txt;
-                    option.text = txt;
-                    select.appendChild(option);
-                });
-                fieldContainer.appendChild(select);
-            } else { 
+            } else {
                 const input = document.createElement("input");
-                input.id = `${context}_${id}`;
-                input.type = "text";
-                input.className = "mt-1 block w-full"; 
+                input.id = ${context}_${id};
+                input.type = config?.type === "number" ? "number" : "text";
+                input.required = config?.required || false;
+                input.className = "mt-1 block w-full";
                 fieldContainer.appendChild(input);
             }
             paramsBlockStop.appendChild(fieldContainer);
