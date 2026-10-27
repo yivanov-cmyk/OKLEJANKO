@@ -92,3 +92,113 @@ function getParametersConfig() {
       };
     });
 }
+function saveParameters(parameters, adminToken) {
+  return withAdminSession_(adminToken, function() {
+    if (!Array.isArray(parameters) || !parameters.length) {
+      throw new Error('Brak parametrów do zapisania.');
+    }
+
+
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName(PARAMETERS_SHEET);
+
+
+    if (!sheet) {
+      throw new Error('Brak arkusza ParametersConfig.');
+    }
+
+
+    const existingIds = new Set(
+      getParametersConfig().map(p => p.id)
+    );
+    const receivedIds = new Set();
+
+
+    const rows = parameters.map(p => {
+      const id = String(p.id || '').trim();
+      const name = String(p.name || '').trim();
+      const type = String(p.type || '').trim();
+      const column = String(p.targetColumn || '').trim().toUpperCase();
+
+
+      if (!/^[A-Za-z0-9_]{1,60}$/.test(id)) {
+        throw new Error('Nieprawidłowe ID: ' + id);
+      }
+
+
+      if (!name || name.length > 100) {
+        throw new Error('Nieprawidłowa nazwa: ' + id);
+      }
+
+
+      if (!['text', 'number', 'select'].includes(type)) {
+        throw new Error('Nieprawidłowy typ: ' + id);
+      }
+
+
+      if (column && !['A', 'F', 'I', 'K', 'L'].includes(column)) {
+        throw new Error('Niedozwolona kolumna: ' + column);
+      }
+
+
+      if (receivedIds.has(id)) {
+        throw new Error('Duplikat ID: ' + id);
+      }
+      receivedIds.add(id);
+
+
+      const options = Array.isArray(p.options)
+        ? [...new Set(p.options.map(v => String(v).trim()).filter(Boolean))]
+        : [];
+
+
+      if (type === 'select' && !options.length) {
+        throw new Error('Brak opcji dla: ' + id);
+      }
+
+
+      return [
+        id,
+        name,
+        type,
+        p.required === true,
+        JSON.stringify(type === 'select' ? options : []),
+        column,
+        p.active === true
+      ];
+    });
+
+
+    const missing = [...existingIds].filter(id => !receivedIds.has(id));
+    if (missing.length) {
+      throw new Error('Brak istniejących parametrów: ' + missing.join(', '));
+    }
+
+
+    const backup = sheet.copyTo(ss);
+    backup.setName(
+      'ParametersBackup_' +
+      Utilities.formatDate(
+        new Date(),
+        Session.getScriptTimeZone(),
+        'yyyyMMdd_HHmmss'
+      )
+    );
+    backup.hideSheet();
+
+
+    const oldRows = Math.max(sheet.getLastRow() - 1, 0);
+    if (oldRows) {
+      sheet.getRange(2, 1, oldRows, 7).clearContent();
+    }
+
+
+    sheet.getRange(2, 1, rows.length, 7).setValues(rows);
+
+
+    return {
+      success: true,
+      message: 'Zapisano parametry: ' + rows.length
+    };
+  });
+}
