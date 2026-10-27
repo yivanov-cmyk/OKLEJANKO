@@ -234,12 +234,45 @@
 
 
                             editButton.addEventListener('click', function() {
-                                alert(
-                                    'Edycja użytkownika:\n' +
-                                    'Login: ' + user.login + '\n' +
-                                    'Maska: ' + user.loginMask
+                            const newLogin = prompt('Login:', user.login);
+                            if (newLogin === null) return;
+
+
+                            const newMask = prompt('Maska loginu:', user.loginMask);
+                            if (newMask === null) return;
+
+
+                            if (!newLogin.trim() || !newMask.trim()) {
+                                showMessage('Login i maska są wymagane.', 'error');
+                                return;
+                            }
+
+
+                            if (newLogin.trim() === user.login &&
+                                newMask.trim() === user.loginMask) {
+                                return;
+                            }
+
+
+                            editButton.disabled = true;
+
+
+                            google.script.run
+                                .withSuccessHandler(function(result) {
+                                    showMessage(result.message);
+                                    loadUsersConfig();
+                                })
+                                .withFailureHandler(function(error) {
+                                    editButton.disabled = false;
+                                    showMessage(error.message, 'error');
+                                })
+                                .updateUserConfig(
+                                    user.rowNumber,
+                                    newLogin.trim(),
+                                    newMask.trim(),
+                                    adminToken
                                 );
-                            });
+                        });
 
 
                             const deleteButton = document.createElement('button');
@@ -271,6 +304,51 @@
             })
             .createAdminSession(password);
     }
+    document.getElementById('add-user-btn')
+    .addEventListener('click', function() {
+        if (!adminToken) {
+            showMessage(
+                'Najpierw otwórz zakładkę Użytkownicy.',
+                'error'
+            );
+            return;
+        }
+
+
+        const login = prompt('Login nowego użytkownika:');
+        if (login === null) return;
+
+
+        const loginMask = prompt('Maska loginu:');
+        if (loginMask === null) return;
+
+
+        if (!login.trim() || !loginMask.trim()) {
+            showMessage('Login i maska są wymagane.', 'error');
+            return;
+        }
+
+
+        const button = document.getElementById('add-user-btn');
+        button.disabled = true;
+
+
+        google.script.run
+            .withSuccessHandler(function(result) {
+                button.disabled = false;
+                showMessage(result.message);
+                loadUsersConfig();
+            })
+            .withFailureHandler(function(error) {
+                button.disabled = false;
+                showMessage(error.message, 'error');
+            })
+            .createUserConfig(
+                login.trim(),
+                loginMask.trim(),
+                adminToken
+            );
+    });
     // Globalne zmienne do śledzenia stanu
     let originalProcedures = [];
     let currentProcedures = [];
