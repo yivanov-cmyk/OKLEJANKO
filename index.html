@@ -789,7 +789,7 @@
 
             if (config?.type === "select") {
                 const select = document.createElement("select");
-                select.id = ${context}_${id};
+                select.id = `${context}_${id}`;
                 select.className = "mt-1 block w-full";
                 select.required = config.required;
 
@@ -811,7 +811,7 @@
                 fieldContainer.appendChild(select);
             } else {
                 const input = document.createElement("input");
-                input.id = ${context}_${id};
+                input.id = `${context}_${id}`;
                 input.type = config?.type === "number" ? "number" : "text";
                 input.required = config?.required || false;
                 input.className = "mt-1 block w-full";
