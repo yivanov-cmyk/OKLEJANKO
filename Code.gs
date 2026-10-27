@@ -603,10 +603,36 @@ function saveProcessData(data) {
   let columnAValue = data.sscc || data.procedure;
 
 
-  if (data.procedure === 'Anomalia') {
-    columnAValue = data.Komentarz || data.procedure;
-  } else if (data.procedure === 'Delegacja') {
-    columnAValue = data.Klient || data.procedure;
+  const procedureConfig = getProceduresConfig()
+    .find(p => p.id === data.procedure);
+
+
+  const parameterIds = procedureConfig
+    ? [
+        ...new Set([
+          ...(procedureConfig.startParameters || []),
+          ...(procedureConfig.stopParameters || [])
+        ])
+      ]
+    : [];
+
+
+  const columnAParameters = getParametersConfig()
+    .filter(p =>
+      p.active &&
+      String(p.targetColumn || '').trim().toUpperCase() === 'A' &&
+      p.id !== 'SSCC' &&
+      parameterIds.includes(p.id)
+    );
+
+
+  const columnAValues = columnAParameters
+    .map(p => String(data[p.id] || '').trim())
+    .filter(Boolean);
+
+
+  if (!data.sscc && columnAValues.length) {
+    columnAValue = [...new Set(columnAValues)].join(' | ');
   }
   const rowData = [
     columnAValue,          // A: SSCC
