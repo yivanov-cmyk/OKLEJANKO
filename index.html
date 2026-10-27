@@ -720,7 +720,6 @@
         : [];
 
 
-      // Совместимость с колонкой SSCCRequired.
       if (config.ssccRequired && !fields.includes('SSCC')) {
         fields.unshift('SSCC');
       }
@@ -739,16 +738,40 @@
           : fieldId.replace(/_/g, ' ') + ':';
 
 
-        const input = document.createElement('input');
-        input.type = 'text';
+        const parameterConfig = getParameterConfig(fieldId);
+        let input;
+
+
+        if (parameterConfig?.type === 'select') {
+          input = document.createElement('select');
+
+
+          const placeholder = document.createElement('option');
+          placeholder.value = '';
+          placeholder.textContent = '-- wybierz --';
+          input.appendChild(placeholder);
+
+
+          (parameterConfig.options || []).forEach(value => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            input.appendChild(option);
+          });
+        } else {
+          input = document.createElement('input');
+          input.type = parameterConfig?.type === 'number'
+            ? 'number'
+            : 'text';
+        }
+
+
         input.id = 'start_' + fieldId;
         input.dataset.fieldId = fieldId;
         input.className = 'mt-1 block w-full';
-
-
-        // На этом этапе обязательность задаётся для SSCC.
-        // Для остальных полей добавим отдельные настройки в админке.
-        input.required = fieldId === 'SSCC' && config.ssccRequired;
+        input.required = fieldId === 'SSCC'
+          ? config.ssccRequired
+          : (parameterConfig?.required || false);
 
 
         wrapper.appendChild(label);
