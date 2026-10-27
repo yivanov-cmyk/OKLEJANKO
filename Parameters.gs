@@ -93,7 +93,8 @@ function getParametersConfig() {
     });
 }
 function saveParameters(parameters, adminToken) {
-  return withAdminSession_(adminToken, function() {
+      requireAdminSession_(adminToken);
+    {
     if (!Array.isArray(parameters) || !parameters.length) {
       throw new Error('Brak parametrów do zapisania.');
     }
@@ -200,5 +201,5 @@ function saveParameters(parameters, adminToken) {
       success: true,
       message: 'Zapisano parametry: ' + rows.length
     };
-  });
+  }
 }
