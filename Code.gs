@@ -1,18 +1,32 @@
 const CACHE_KEY_LOGINS = 'LOGIN_MAP_CACHE';
 const PROP_KEY_SESSIONS = 'activeSessions';
 const PROP_KEY_TOP3 = 'TOP_3_CACHE';
-function doGet() {
+function doGet(e) {
+  const page = e && e.parameter && e.parameter.page;
+
+
+  if (page === 'admin') {
+    return HtmlService
+      .createHtmlOutputFromFile('adminPanel')
+      .setTitle('FM Logistic – Administracja')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1.0');
+  }
+
+
   const newPassword = generateAndSendNewPasswordToAdmin();
-  
+
+
   if (newPassword) {
     logDebug('Nowe hasło wygenerowane i wysłane pomyślnie.');
   } else {
-    logDebug('BŁĄD: Nie udało się wygenerować lub wysłać hasła.');
+    logDebug('Błąd generowania hasła.');
   }
-  
-  return HtmlService.createHtmlOutputFromFile("index")
-    .setTitle("FM Logistic – Rejestracja procesu")
-    .addMetaTag("viewport", "width=device-width, initial-scale=1.0")
+
+
+  return HtmlService
+    .createHtmlOutputFromFile('index')
+    .setTitle('FM Logistic – Rejestracja procesu')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1.0')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 function logDebug(message) {
@@ -616,22 +630,33 @@ function getNameByLogin(login) {
   return login;
 }
 
+//function getWorkMode(proc) {
+  //const map = {
+  //  "Oklejanie": "S_OKL",
+  //  "Oklejanieplus": "S_OKLK",
+  //  "Auto_Labeling": "A_LAB",
+  //  "Briefing": "M_BRF",
+  //  "Przerwa": "S_PRW",
+  //  "Anomalia": "S_ANO",
+  //  "Copacking": "S_COP",
+  //  "Delegacja": "S_DEL",
+  //  "Drukowanie": "A_DRK",
+  //  "Kartony": "M_KAR",
+  //  "Simplex": "A_SIM",
+  // "S_START": "S_STR",
+  //  "S_END": "S_END",
+  //  "Process": "S_PRC",
+  //};
+//  return map[proc] || proc || "";
+//}
 function getWorkMode(proc) {
-  const map = {
-    "Oklejanie": "S_OKL",
-    "Oklejanieplus": "S_OKLK",
-    "Auto_Labeling": "A_LAB",
-    "Briefing": "M_BRF",
-    "Przerwa": "S_PRW",
-    "Anomalia": "S_ANO",
-    "Copacking": "S_COP",
-    "Delegacja": "S_DEL",
-    "Drukowanie": "A_DRK",
-    "Kartony": "M_KAR",
-    "Simplex": "A_SIM",
-    "S_START": "S_STR",
-    "S_END": "S_END",
-    "Process": "S_PRC",
-  };
-  return map[proc] || proc || "";
+  const procedureId = String(proc || '').trim();
+  if (!procedureId) return '';
+
+
+  const procedure = getProceduresConfig()
+    .find(p => p.id === procedureId);
+
+
+  return procedure ? procedure.workmode : procedureId;
 }
