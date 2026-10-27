@@ -40,7 +40,7 @@ function initializeParametersConfig() {
       ]),
       '', true
     ],
-    ['Komentarz', 'Komentarz', 'text', false, '', 'A', true],
+    ['Komentarz', 'Komentarz', 'text', false, '', '', true],
     ['Referencja', 'Referencja', 'text', false, '', 'K', true]
   ];
 
