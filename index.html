@@ -419,7 +419,46 @@
     let isStarting = false;
     let isStopping = false;
     let proceduresConfig = [];
+    let parametersConfig = [];
 
+
+    function loadParametersConfig() {
+      google.script.run
+        .withSuccessHandler(function(parameters) {
+          parametersConfig = Array.isArray(parameters)
+            ? parameters
+            : [];
+
+
+          console.log(
+            'Załadowano parametry:',
+            parametersConfig.length
+          );
+
+
+          // Odśwież pola, jeśli użytkownik wybrał już procedurę.
+          const stopSelect = document.getElementById('stop_procedure');
+          if (stopSelect && stopSelect.value) {
+            updateFields('stop');
+          }
+        })
+        .withFailureHandler(function(error) {
+          console.error('Błąd ładowania parametrów:', error);
+          Swal.fire(
+            'Błąd konfiguracji',
+            'Nie udało się pobrać parametrów.',
+            'error'
+          );
+        })
+        .getParametersConfig();
+    }
+
+
+    function getParameterConfig(parameterId) {
+      return parametersConfig.find(
+        p => p.id === parameterId && p.active
+      ) || null;
+    }
 
     function loadProceduresConfig() {
       google.script.run
@@ -1085,6 +1124,7 @@
     window.onload = () => {
     // Ładuje listę użytkowników przy pierwszym otwarciu strony
     loadProceduresConfig();
+    loadParametersConfig();
     loadActiveUsers();
     
     loadTopOklejanie(); 
