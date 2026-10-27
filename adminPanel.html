@@ -492,33 +492,73 @@
         .createAdminSession(password);
     });
   function renderParameters() {
-    const container = document.getElementById('parameters-container');
-    container.innerHTML = '';
+      const container = document.getElementById('parameters-container');
+      container.innerHTML = '';
 
 
-    allParameters.forEach(param => {
-        const item = document.createElement('div');
-        item.className = 'p-3 bg-gray-50 border rounded-lg';
+      allParameters.forEach((param, index) => {
+          const item = document.createElement('div');
+          item.className = 'parameter-item p-4 bg-gray-50 border rounded-lg space-y-3';
 
 
-        const name = document.createElement('strong');
-        name.textContent = param.name || param.id;
+          const createField = (label, value, className, type = 'text') => {
+              const wrapper = document.createElement('label');
+              wrapper.className = 'block text-sm font-medium';
+              wrapper.textContent = label;
 
 
-        const details = document.createElement('div');
-        details.className = 'text-sm text-gray-600 mt-1';
-        details.textContent = [
-            'ID: ' + param.id,
-            'Typ: ' + param.type,
-            'Kolumna: ' + (param.targetColumn || 'Brak')
-        ].join(' | ');
+              const input = document.createElement('input');
+              input.type = type;
+              input.className = className + ' mt-1 block w-full p-2 border rounded';
+              if (type === 'checkbox') {
+                  input.checked = !!value;
+                  input.className = className + ' mt-2';
+              } else {
+                  input.value = value ?? '';
+              }
 
 
-        item.appendChild(name);
-        item.appendChild(details);
-        container.appendChild(item);
-    });
-}  
+              wrapper.appendChild(input);
+              item.appendChild(wrapper);
+              return input;
+          };
+
+
+          createField('ParameterID', param.id, 'param-id').readOnly = true;
+          createField('Nazwa', param.name, 'param-name');
+
+
+          const typeField = document.createElement('select');
+          typeField.className = 'param-type mt-1 block w-full p-2 border rounded';
+          ['text', 'number', 'select'].forEach(type => {
+              const option = document.createElement('option');
+              option.value = type;
+              option.textContent = type;
+              option.selected = param.type === type;
+              typeField.appendChild(option);
+          });
+
+
+          const typeLabel = document.createElement('label');
+          typeLabel.className = 'block text-sm font-medium';
+          typeLabel.textContent = 'Typ';
+          typeLabel.appendChild(typeField);
+          item.appendChild(typeLabel);
+
+
+          createField('Wymagany', param.required, 'param-required', 'checkbox');
+          createField(
+              'Opcje (oddziel przecinkami)',
+              (param.options || []).join(', '),
+              'param-options'
+          );
+          createField('Kolumna docelowa', param.targetColumn, 'param-column');
+          createField('Aktywny', param.active, 'param-active', 'checkbox');
+
+
+          container.appendChild(item);
+      });
+  }
   window.onload = () => {
       loadData();
       initializeRefresh();
