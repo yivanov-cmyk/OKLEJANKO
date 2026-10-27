@@ -954,3 +954,62 @@ function updateUserConfig(rowNumber, login, loginMask, adminToken) {
     lock.releaseLock();
   }
 }
+function deleteUserConfig(rowNumber, expectedLogin, adminToken) {
+  requireAdminSession_(adminToken);
+
+
+  rowNumber = Number(rowNumber);
+  expectedLogin = String(expectedLogin || '').trim();
+
+
+  if (!Number.isInteger(rowNumber) || rowNumber < 2 || !expectedLogin) {
+    throw new Error('Nieprawidłowe dane użytkownika.');
+  }
+
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+
+
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet()
+      .getSheetByName('Login');
+
+
+    if (!sheet) {
+      throw new Error('Nie znaleziono arkusza Login.');
+    }
+
+
+    if (rowNumber > sheet.getLastRow()) {
+      throw new Error('Użytkownik nie istnieje. Odśwież listę.');
+    }
+
+
+    const currentLogin = String(
+      sheet.getRange(rowNumber, 1).getDisplayValue()
+    ).trim();
+
+
+    if (currentLogin !== expectedLogin) {
+      throw new Error(
+        'Dane użytkownika uległy zmianie. Odśwież listę.'
+      );
+    }
+
+
+    sheet.deleteRow(rowNumber);
+
+
+    SpreadsheetApp.flush();
+    CacheService.getScriptCache().remove('LOGIN_MAP_DATA');
+
+
+    return {
+      success: true,
+      message: 'Usunięto użytkownika: ' + expectedLogin
+    };
+  } finally {
+    lock.releaseLock();
+  }
+}
