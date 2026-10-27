@@ -98,6 +98,45 @@
 </div>
 
 <script>
+    // Przełączanie zakładek panelu administratora.
+    document.addEventListener('DOMContentLoaded', function() {
+        const sections = {
+            users: document.getElementById('active-users-container').parentElement,
+            procedures: document.getElementById('service-management'),
+            parameters: document.getElementById('parameters-management'),
+            workers: document.getElementById('top-workers-container').parentElement,
+            actions: document.getElementById('admin-actions')
+        };
+
+
+        const buttons = document.querySelectorAll('#admin-tabs .tab-btn');
+
+
+        function showTab(tabId) {
+            Object.keys(sections).forEach(function(key) {
+                sections[key].classList.toggle('hidden', key !== tabId);
+            });
+
+
+            buttons.forEach(function(button) {
+                const selected = button.dataset.tab === tabId;
+                button.classList.toggle('bg-blue-600', selected);
+                button.classList.toggle('text-white', selected);
+                button.classList.toggle('bg-gray-200', !selected);
+                button.classList.toggle('text-gray-800', !selected);
+            });
+        }
+
+
+        buttons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                showTab(button.dataset.tab);
+            });
+        });
+
+
+        showTab('users');
+    });
     // Globalne zmienne do śledzenia stanu
     let originalProcedures = [];
     let currentProcedures = [];
