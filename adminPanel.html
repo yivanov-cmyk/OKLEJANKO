@@ -507,8 +507,11 @@
 
         const details = document.createElement('div');
         details.className = 'text-sm text-gray-600 mt-1';
-        details.textContent =
-            ID: ${param.id} | Typ: ${param.type} | Kolumna: ${param.targetColumn || 'Brak'};
+        details.textContent = [
+            'ID: ' + param.id,
+            'Typ: ' + param.type,
+            'Kolumna: ' + (param.targetColumn || 'Brak')
+        ].join(' | ');
 
 
         item.appendChild(name);
