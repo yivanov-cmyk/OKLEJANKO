@@ -171,12 +171,71 @@
         buttons.forEach(function(button) {
             button.addEventListener('click', function() {
                 showTab(button.dataset.tab);
+
+
+                if (button.dataset.tab === 'user-management') {
+                    loadUsersConfig();
+                }
+            
             });
-        });
 
 
         showTab('users');
     });
+    function loadUsersConfig() {
+        const password = prompt('Hasło administratora:');
+        if (password === null) return;
+
+
+        google.script.run
+            .withSuccessHandler(function(token) {
+                adminToken = token;
+
+
+                google.script.run
+                    .withSuccessHandler(function(users) {
+                        const container = document.getElementById(
+                            'users-config-container'
+                        );
+
+
+                        container.innerHTML = '';
+
+
+                        users.forEach(function(user) {
+                            const row = document.createElement('tr');
+                            row.className = 'border-b';
+
+
+                            const loginCell = document.createElement('td');
+                            loginCell.className = 'p-3';
+                            loginCell.textContent = user.login;
+
+
+                            const maskCell = document.createElement('td');
+                            maskCell.className = 'p-3';
+                            maskCell.textContent = user.loginMask;
+
+
+                            const actionsCell = document.createElement('td');
+                            actionsCell.className = 'p-3';
+                            actionsCell.textContent = '—';
+
+
+                            row.append(loginCell, maskCell, actionsCell);
+                            container.appendChild(row);
+                        });
+                    })
+                    .withFailureHandler(function(error) {
+                        showMessage(error.message, 'error');
+                    })
+                    .getUsersConfig(token);
+            })
+            .withFailureHandler(function(error) {
+                showMessage(error.message, 'error');
+            })
+            .createAdminSession(password);
+    }
     // Globalne zmienne do śledzenia stanu
     let originalProcedures = [];
     let currentProcedures = [];
