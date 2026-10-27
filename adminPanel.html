@@ -335,56 +335,7 @@
         }
     });
 
-    // Obsługa zdarzeń dla zarządzania procedurami
-    document.getElementById('services-container').addEventListener('click', (event) => {
-        const target = event.target;
-        if (target.classList.contains('remove-procedure-btn')) {
-            const procedureItem = target.closest('.procedure-item');
-            const index = parseInt(procedureItem.dataset.index);
-            currentProcedures.splice(index, 1);
-            renderProcedures();
-        }
-    });
     
-    document.getElementById('add-procedure-btn').addEventListener('click', () => {
-        currentProcedures.push({ name: '', workmode: '', startParameters: [], stopParameters: [] });
-        renderProcedures();
-    });
-
-    document.getElementById('save-procedures-btn').addEventListener('click', (event) => {
-    const btn = event.target;
-    showLoadingIndicator(btn);
-
-    const currentProceduresToSave = [];
-    const procedureItems = document.querySelectorAll('.procedure-item');
-    procedureItems.forEach(item => {
-        const name = item.querySelector('.procedure-name').value.trim();
-        const workmode = item.querySelector('.procedure-workmode').value.trim();
-        
-        // Zbieranie wybranych opcji z listy rozwijanej
-        const startSelect = document.getElementById(`start-params-${item.dataset.index}`);
-        const startParams = Array.from(startSelect.selectedOptions).map(option => option.value);
-
-        const stopSelect = document.getElementById(`stop-params-${item.dataset.index}`);
-        const stopParams = Array.from(stopSelect.selectedOptions).map(option => option.value);
-
-        if (!name) {
-            showMessage('Błąd: Nazwa procedury nie może być pusta.', 'error');
-            hideLoadingIndicator(btn, 'Zapisz zmiany');
-            return;
-        }
-
-        currentProceduresToSave.push({ name, workmode, startParameters: startParams, stopParameters: stopParams });
-    });
-
-    google.script.run
-        .withSuccessHandler(response => {
-            showMessage(response.message, response.success ? 'success' : 'error');
-            loadData();
-        })
-        .withFailureHandler(onError)
-        .saveProcedures(currentProceduresToSave);
-});
     let refreshInterval;
 
 
