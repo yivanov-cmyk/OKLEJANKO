@@ -213,17 +213,7 @@
       });
     }
     function initializeRefresh() {
-      // Funkcja, która odświeża statystyki
-      const refreshStats = () => {
-        google.script.run
-          .withSuccessHandler(onTopWorkersLoaded)
-          .withFailureHandler(onError)
-          .getWorkmodeStatsForMonth("A_FLO");
-      };
-
-      // Ustaw interwał odświeżania na 12 godzin (12 * 60 * 60 * 1000 ms)
-      // Przykładowo dla 2 razy dziennie. Możesz dostosować, np. o 6 rano i 18 wieczorem.
-      refreshInterval = setInterval(refreshStats, 12 * 60 * 60 * 1000);
+      //sss
     }
     // Renderowanie interfejsu
     function renderProcedures() {
