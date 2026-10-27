@@ -184,16 +184,21 @@
         });
     function loadUsersConfig() {
         const password = prompt('Hasło administratora:');
+        
         if (password === null) return;
-
+        
 
         google.script.run
             .withSuccessHandler(function(token) {
+                console.log('Sesja administratora utworzona:', Boolean(token));
                 adminToken = token;
 
 
                 google.script.run
                     .withSuccessHandler(function(users) {
+                        console.log('Pobrani użytkownicy:', users);
+
+
                         const container = document.getElementById(
                             'users-config-container'
                         );
@@ -219,7 +224,37 @@
 
                             const actionsCell = document.createElement('td');
                             actionsCell.className = 'p-3';
-                            actionsCell.textContent = '—';
+
+
+                            const editButton = document.createElement('button');
+                            editButton.type = 'button';
+                            editButton.textContent = 'Edytuj';
+                            editButton.className =
+                                'px-3 py-1 mr-2 bg-blue-500 text-white rounded';
+
+
+                            editButton.addEventListener('click', function() {
+                                alert(
+                                    'Edycja użytkownika:\n' +
+                                    'Login: ' + user.login + '\n' +
+                                    'Maska: ' + user.loginMask
+                                );
+                            });
+
+
+                            const deleteButton = document.createElement('button');
+                            deleteButton.type = 'button';
+                            deleteButton.textContent = 'Usuń';
+                            deleteButton.className =
+                                'px-3 py-1 bg-red-500 text-white rounded';
+
+
+                            deleteButton.addEventListener('click', function() {
+                                alert('Usuwanie użytkownika: ' + user.login);
+                            });
+
+
+                            actionsCell.append(editButton, deleteButton);
 
 
                             row.append(loginCell, maskCell, actionsCell);
