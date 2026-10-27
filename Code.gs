@@ -781,7 +781,7 @@ function getUsersConfig(adminToken) {
     }))
     .filter(user => user.login !== '');
 }
-function createUserConfig(login, loginMask, adminToken) {
+function createUserConfig(login, loginMask, adminToken, overwrite) {
   requireAdminSession_(adminToken);
 
 
@@ -814,15 +814,45 @@ function createUserConfig(login, loginMask, adminToken) {
 
 
     const lastRow = sheet.getLastRow();
-    const existing = lastRow > 1
-      ? sheet.getRange(2, 1, lastRow - 1, 1).getDisplayValues()
+    const rows = lastRow > 1
+      ? sheet.getRange(2, 1, lastRow - 1, 2).getDisplayValues()
       : [];
 
 
-    if (existing.some(row =>
-      row[0].trim().toLowerCase() === login.toLowerCase()
-    )) {
-      throw new Error('Użytkownik o takim loginie już istnieje.');
+    const existingIndex = rows.findIndex(row =>
+      String(row[0]).trim().toLowerCase() === login.toLowerCase()
+    );
+
+
+    if (existingIndex !== -1) {
+      const existingRow = existingIndex + 2;
+      const existingLogin = String(rows[existingIndex][0]).trim();
+      const existingMask = String(rows[existingIndex][1]).trim();
+
+
+      if (overwrite !== true) {
+        return {
+          success: false,
+          duplicate: true,
+          login: existingLogin,
+          currentMask: existingMask,
+          message: 'Użytkownik już istnieje.'
+        };
+      }
+
+
+      sheet.getRange(existingRow, 2).setValue(loginMask);
+
+
+      SpreadsheetApp.flush();
+      CacheService.getScriptCache().remove('LOGIN_MAP_DATA');
+
+
+      return {
+        success: true,
+        overwritten: true,
+        message: 'Zaktualizowano istniejącego użytkownika.'
+      };
     }
 
 
@@ -838,7 +868,13 @@ function createUserConfig(login, loginMask, adminToken) {
     CacheService.getScriptCache().remove('LOGIN_MAP_DATA');
 
 
-    return { success: true, message: 'Dodano użytkownika.' };
+    return {
+      success: true,
+      created: true,
+      message: 'Dodano nowego użytkownika.'
+    };
+
+
   } finally {
     lock.releaseLock();
   }
