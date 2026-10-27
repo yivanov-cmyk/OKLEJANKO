@@ -284,7 +284,38 @@
 
 
                             deleteButton.addEventListener('click', function() {
-                                alert('Usuwanie użytkownika: ' + user.login);
+                                Swal.fire({
+                                    title: 'Usunąć użytkownika?',
+                                    text: 'Identyfikator: ' + user.login +
+                                          '\nMaska: ' + user.loginMask,
+                                    icon: 'warning',
+                                    showCancelButton: true,
+                                    confirmButtonText: 'Usuń',
+                                    cancelButtonText: 'Anuluj',
+                                    confirmButtonColor: '#dc2626'
+                                }).then(function(result) {
+                                    if (!result.isConfirmed) return;
+                            
+                            
+                                    deleteButton.disabled = true;
+                            
+                            
+                                    google.script.run
+                                        .withSuccessHandler(function(response) {
+                                            deleteButton.disabled = false;
+                                            showMessage(response.message);
+                                            loadUsersConfig();
+                                        })
+                                        .withFailureHandler(function(error) {
+                                            deleteButton.disabled = false;
+                                            showMessage(error.message, 'error');
+                                        })
+                                        .deleteUserConfig(
+                                            user.rowNumber,
+                                            user.login,
+                                            adminToken
+                                        );
+                                });
                             });
 
 
