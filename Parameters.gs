@@ -40,7 +40,13 @@ function initializeParametersConfig() {
       ]),
       '', true
     ],
-    ['Komentarz', 'Komentarz', 'text', false, '', '', true],
+    ['Komentarz', 'Komentarz', 'select', true,
+      JSON.stringify([
+        "ZWOZENIE", 
+        "PREPARACJA", 
+        "SPRZATANIE"]),
+        '', true
+    ],
     ['Referencja', 'Referencja', 'text', false, '', 'K', true]
   ];
 
