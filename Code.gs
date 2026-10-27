@@ -781,3 +781,140 @@ function getUsersConfig(adminToken) {
     }))
     .filter(user => user.login !== '');
 }
+function createUserConfig(login, loginMask, adminToken) {
+  requireAdminSession_(adminToken);
+
+
+  login = String(login || '').trim();
+  loginMask = String(loginMask || '').trim();
+
+
+  if (!login || !loginMask) {
+    throw new Error('Login i maska loginu są wymagane.');
+  }
+
+
+  if (login.length > 100 || loginMask.length > 200) {
+    throw new Error('Przekroczono dopuszczalną długość danych.');
+  }
+
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+
+
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet()
+      .getSheetByName('Login');
+
+
+    if (!sheet) {
+      throw new Error('Nie znaleziono arkusza Login.');
+    }
+
+
+    const lastRow = sheet.getLastRow();
+    const existing = lastRow > 1
+      ? sheet.getRange(2, 1, lastRow - 1, 1).getDisplayValues()
+      : [];
+
+
+    if (existing.some(row =>
+      row[0].trim().toLowerCase() === login.toLowerCase()
+    )) {
+      throw new Error('Użytkownik o takim loginie już istnieje.');
+    }
+
+
+    const newRow = lastRow + 1;
+
+
+    sheet.getRange(newRow, 1).setNumberFormat('@');
+    sheet.getRange(newRow, 1, 1, 2)
+      .setValues([[login, loginMask]]);
+
+
+    SpreadsheetApp.flush();
+    CacheService.getScriptCache().remove('LOGIN_MAP_DATA');
+
+
+    return { success: true, message: 'Dodano użytkownika.' };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+
+
+
+function updateUserConfig(rowNumber, login, loginMask, adminToken) {
+  requireAdminSession_(adminToken);
+
+
+  login = String(login || '').trim();
+  loginMask = String(loginMask || '').trim();
+
+
+  if (!login || !loginMask) {
+    throw new Error('Login i maska loginu są wymagane.');
+  }
+
+
+  if (login.length > 100 || loginMask.length > 200) {
+    throw new Error('Przekroczono dopuszczalną długość danych.');
+  }
+
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+
+
+  try {
+    const sheet = SpreadsheetApp.getActiveSpreadsheet()
+      .getSheetByName('Login');
+
+
+    if (!sheet) {
+      throw new Error('Nie znaleziono arkusza Login.');
+    }
+
+
+    const lastRow = sheet.getLastRow();
+    rowNumber = Number(rowNumber);
+
+
+    if (!Number.isInteger(rowNumber) ||
+        rowNumber < 2 || rowNumber > lastRow) {
+      throw new Error('Nieprawidłowy numer wiersza.');
+    }
+
+
+    const rows = sheet.getRange(2, 1, lastRow - 1, 1)
+      .getDisplayValues();
+
+
+    const duplicate = rows.some((row, index) =>
+      index + 2 !== rowNumber &&
+      row[0].trim().toLowerCase() === login.toLowerCase()
+    );
+
+
+    if (duplicate) {
+      throw new Error('Użytkownik o takim loginie już istnieje.');
+    }
+
+
+    sheet.getRange(rowNumber, 1).setNumberFormat('@');
+    sheet.getRange(rowNumber, 1, 1, 2)
+      .setValues([[login, loginMask]]);
+
+
+    SpreadsheetApp.flush();
+    CacheService.getScriptCache().remove('LOGIN_MAP_DATA');
+
+
+    return { success: true, message: 'Zaktualizowano użytkownika.' };
+  } finally {
+    lock.releaseLock();
+  }
+}
